@@ -22,11 +22,11 @@ cooktop control and does not belong in this BLE integration.
 | Timers | Codecs plus zone-timer duration, remaining time, and active status | Check setter units and actual start/stop operation |
 | Settings | Locks, signal volume, touch sensitivity, pan detection, operating duration, and simple-mode features | Confirm meaning and support on this model |
 | Start/change BORA Assist | Four concrete X PURE catalogue starts, local selection, and separate start button; exact parameters and checks prepared | Test physical operation/confirmation; support other programs and active modification |
-| Saved Assists | Separate read button and sensors for slots 3–5; shared with diagnostics. App save path reconstructed | Confirm actual reading; test firmware behaviour for omitted slots and retention of slots 1–2 before offering storage control |
+| Saved Assists | Separate read button and sensors for slots 3–5; paired-Mac `GetSavedCsf` read returned built-in indices 1–2 only, consistent with an earlier app snapshot of three empty favorite slots | Validate populated favorites and real HA entities; test save semantics and retention of slots 1–2 before storage controls; snapshot comparison did not mutate favorites |
 | Bridge zones | Bridge status and codec; the examined app selection retains two zones locally | Establish the actual BLE bridge/unbridge path and firmware behaviour |
 | Filter status | Supported binary replacement alert for known recirculation; raw lifetime and types available | Establish BLE-status unit, reset meaning, and physical alert |
 | Metadata | Model, versions, and redacted diagnostics | Check more models and first Linux pairing |
-| Wi-Fi and events | Optional last-reported Wi-Fi sensor with read time and connection-lifetime cache; explicit diagnostics history with namespace-specific labels and a local 20-record limit | Validate optional reads physically; event timestamp units and ordering remain unproven |
+| Wi-Fi and events | Paired-Mac Wi-Fi and heartbeat-status reads succeeded; separate heartbeat-period query returned attributed code 5. Each event query returned 600 records; local cap retained 20 and counted 580 omitted | Validate HA diagnostic entities/cache and proxy use physically; event timestamp units and ordering remain unproven; see [diagnostic results](FEATURES.md#diagnostics) |
 | Firmware | Version visible; no updater | Do not offer an update workflow as a generic write command |
 
 ## Additional behaviour from the manual

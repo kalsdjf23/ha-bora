@@ -1,6 +1,6 @@
 # Local package for manual testing
 
-On 26 September 2026, `dist/bora-0.1.0-preparation-20260926-r5.zip` was built
+On 26 September 2026, `dist/bora-0.1.0-preparation-20260926-r6.zip` was built
 locally for a later, supervised manual Home Assistant test. It has not been
 installed, published or offered as a HACS release asset. The existing
 `hacs.json` continues to use the normal repository layout, without `zip_release`.
@@ -11,12 +11,12 @@ the project license as `custom_components/bora/LICENSE` and
 environments and caches are excluded. The package contains only the English
 translation; the Dutch translation was removed from the source before this
 build. The license is not placed as `LICENSE` in the Home Assistant
-configuration directory. The archive is **63,920 bytes**.
+configuration directory. The archive is **64,189 bytes**.
 
 SHA-256 of this unchanged test package:
 
 ```text
-d4c3d9dc3e0e34bc3256add427763cabffdc869e0790abd66678447b05a3c29f
+2edccbd741078ee240df65bd569b96b453c64185f7da6ef32f7fc4122013b9fd
 ```
 
 ## Local checks
@@ -27,23 +27,36 @@ d4c3d9dc3e0e34bc3256add427763cabffdc869e0790abd66678447b05a3c29f
   source text was also checked for local user paths and common token/key markers.
 - The archive contains no absolute paths, `..` path components or symlinks;
   no paths escape the destination directory when extracted.
-- **823 tests passed in 6.37 seconds from a temporary extracted package tree.**
+- **841 tests passed in 5.80 seconds from a temporary extracted package tree.**
   Tests, scripts and the pytest configuration in `pyproject.toml` were added
   as a test harness; the integration code came from the ZIP. An import audit
   confirmed that all **26 loaded BORA runtime modules** came from that extracted
   tree. The run used Python **3.14.7** and Home Assistant **2026.9.3**, with
-  **96% coverage** of integration code (**2,362 statements, 83 not covered**).
+  **97% coverage** of integration code (**2,364 statements, 80 not covered**).
   This was an offline test with simulated Bluetooth, including the fix prompted
   by the [cooking observation](COOKING-OBSERVATION.md) and the RPC error-source
   context described in [READONLY-PROBE.md](READONLY-PROBE.md). It also covered
   the explicit Wi-Fi diagnostic status, its receipt timestamp, and cleanup
-  of both optional caches after an invalidated diagnostic collection.
+  of both optional caches after an invalidated diagnostic collection. The r6
+  runtime also handles attributed unsupported-control errors without
+  discarding an otherwise healthy status connection; the hardware rejection
+  that motivated this change is recorded in [HARDWARE-CHECKS.md](HARDWARE-CHECKS.md).
 
-The sibling `bora-0.1.0-preparation-20260926-r5.manifest.json` contains the file
-inventory, checksums, import evidence and test result. The five older archives
+The sibling `bora-0.1.0-preparation-20260926-r6.manifest.json` contains the file
+inventory, checksums, import evidence and test result. The six older archives
 still match their recorded hashes and have not been overwritten or published.
 
-The previous `bora-0.1.0-preparation-20260926-r4.zip` is now a historical
+The previous `bora-0.1.0-preparation-20260926-r5.zip` is now a historical
+candidate. It contained **32 files**, was **63,920 bytes**, and passed **823 tests**
+against its extracted runtime with **96% coverage** (**2,362 statements,
+83 not covered**). It predates the coordinator's handling of attributed
+unsupported-control errors. Its unchanged SHA-256 is:
+
+```text
+d4c3d9dc3e0e34bc3256add427763cabffdc869e0790abd66678447b05a3c29f
+```
+
+The older `bora-0.1.0-preparation-20260926-r4.zip` is also a historical
 candidate. It contained **32 files**, was **63,353 bytes**, and passed **791 tests**
 against its extracted runtime with **96% coverage** (**2,324 statements,
 84 not covered**). It predates the optional Wi-Fi status sensor and its cache
@@ -73,7 +86,7 @@ extracted runtime. Its unchanged SHA-256 is:
 
 The still earlier `bora-0.1.0-preparation.zip` and
 `bora-0.1.0-preparation-20260926.zip` are also historical candidates. None of
-these older archives represents the current r5 runtime and validation result.
+these older archives represents the current r6 runtime and validation result.
 
 These checks establish local packaging and testability. They do not replace
 installation on a real HA instance, Bluetooth pairing, physical control tests
@@ -95,8 +108,11 @@ python3.14 scripts/build_package.py --output dist/bora-0.1.0-preparation-check.z
 
 An existing output file is rejected rather than overwritten. The builder
 installs nothing and does not connect to Home Assistant, GitHub or an
-appliance. The current r5 test package is retained; changes to runtime source
+appliance. The current r6 test package is retained; changes to runtime source
 require a new package and new checks.
+
+Use [INSTALLATION-TEST.md](INSTALLATION-TEST.md) to prepare a future approved
+HA trial, including backup, monitoring-only acceptance and scoped rollback.
 
 Publication remains a separate step under
 [PUBLISHING.md](PUBLISHING.md).

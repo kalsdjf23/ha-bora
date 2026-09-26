@@ -83,7 +83,16 @@ value leaves the command unconfirmed while preserving the actual observed
 state. The appliance may report a change later. A timeout can also leave the
 outcome uncertain. The integration does not automatically repeat the command.
 
+An explicitly attributed unsupported-action response leaves otherwise valid
+monitoring available and reports that the requested action is unsupported.
+A readback error, stream failure or uncertain response does not use this
+exception. The command is not retried and other actions are not classified as
+unsupported. Existing Assist protection against duplicate starts still applies.
+
 ## Future manual installation
+
+Use the [supervised installation test guide](docs/INSTALLATION-TEST.md) for
+prerequisites, backup, monitoring-only acceptance and scoped rollback.
 
 These instructions describe a future, separately arranged test. They have not
 been performed on the user's Home Assistant installation. Project metadata
@@ -110,7 +119,7 @@ Protocol code is independent of Home Assistant under
 The adapter, coordinator and entities connect that layer to Home Assistant.
 Tests use fixtures and a simulated BLE peer; they never connect to the cooktop.
 
-The latest local check passed **823 tests with 96% integration-code coverage**,
+The latest local check passed **841 tests with 97% integration-code coverage**,
 using Python 3.14.7 and the actual Home Assistant 2026.9.3 test runtime. Ruff
 passed. Earlier official [hassfest validation](docs/HASSFEST.md), including
 the requirements check, and [GitHub CI](docs/CI.md) also passed.

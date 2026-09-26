@@ -11,6 +11,24 @@ ordinary status checks and reconnection do not automatically read this list.
 The existing **Refresh diagnostics** button already makes this request and
 populates the same display without a second favorites request.
 
+## Physical read evidence
+
+On 26 September 2026, a supervised read-only probe on the previously paired
+Mac successfully called `GetSavedCsf` once on the X PURE PUXU2R with BLE
+firmware 3.0.9. The response contained two records with explicit indices 1
+and 2, corresponding to the built-in programs, and no records for slots
+3–5. This agrees with an earlier inspected official-app screen showing two
+built-in programs and three empty favorite slots. It is a comparison of
+snapshots, not a controlled save/delete experiment.
+
+This establishes a successful physical read and one concrete empty-favorites
+case. It does not validate populated favorites, save/start behavior,
+preservation of omitted slots during writes, or the HA entities on a real HA
+adapter/proxy. The probe sent no controls; its final status still showed all
+zones at 0 and the fan at 1 before the connection closed. Manual fan-off
+confirmation remains pending in this record. See [the hardware
+checks](HARDWARE-CHECKS.md).
+
 ## Meaning of the display
 
 | Display | Meaning |
@@ -43,5 +61,6 @@ not fill in a local start selection or send `SaveCsf`, `StartOrModifyCsf`,
 phase confirmation or a cooking zone change.
 
 The app's save path and the unresolved question of preserving slots are
-described in [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). All tests of this display
-have run offline; the first physical GetSavedCsf test has yet to take place.
+described in [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). HA display, cache lifecycle
+and service tests still use simulated Bluetooth; the physical probe above
+validates the read response separately.

@@ -5,7 +5,41 @@ X PURE PUXU2R running BLE firmware 3.0.9. The user authorized the tests in
 advance. They do not test the HA adapter, Linux pairing or a Bluetooth proxy.
 Private reports are stored outside this repository.
 
-## Latest result: attributed fan-stop failure
+## Optional diagnostic reads
+
+A later bounded read-only session used the current protocol client with the
+six explicit optional queries. It completed without an overall probe error
+and closed the connection. Its trace contains 26 attempts with no omissions:
+two metadata reads, three status subscriptions, two complete six-request
+status rounds, six optional reads and three subscription stops. No pairing,
+settings, heartbeat activation, fan or zone commands were sent.
+
+| Optional query | Observed result |
+| --- | --- |
+| `GetWiFiStatus` | Code 0; status 17, labelled `iot_hub_connection_success` by the SDK enum |
+| `GetHeartbeatStatus` | Code 0; request-active false, counter 0 and period 0 |
+| `GetHeartbeatPeriod` | Code 5 on this exact unary RPC, request ID 14; retained as an error, not classified as unsupported |
+| `ListSysEvents` | Code 0; 600 received records, 20 retained and 580 omitted by the local history limit |
+| `ListUserEvents` | Code 0; 600 received records, 20 retained and 580 omitted; an unknown event type -1 remains `unknown_-1` |
+| `GetSavedCsf` | Code 0; two entries with explicit indices 1 and 2; no entries for favorite slots 3 through 5 |
+
+The event queries requested 20 records each; this firmware returned 600.
+The local cap kept the exported histories bounded. Event timestamps, ordering
+and the cause of the unknown event type remain unproven. Neither the debug
+counters nor the period error establish a need to send heartbeat requests.
+Wi-Fi status is the appliance's report, not an independent connectivity test.
+
+The two saved entries correspond to the app's built-in slots; the absence of
+3 through 5 is consistent with the three empty favorite positions in the
+earlier app inspection. No saved program was changed to test persistence.
+This verifies these reads on the paired Mac, not the HA button/entity path,
+Linux, or a Bluetooth proxy.
+
+Both status rounds still showed all four zones at 0 and the user's fan level
+1. No automatic or manually confirmed fan-off is established by this session.
+The private report and network identifiers remain outside the repository.
+
+## Attributed fan-stop failure
 
 The user manually set the fan to level 1 to keep the cooktop awake. A new
 0 → 1 → 0 trial stopped at preflight because the fan was already at 1; it

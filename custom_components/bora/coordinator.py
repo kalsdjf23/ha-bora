@@ -12,8 +12,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .adapter import create_connection
 from .ble import cooktop, presets, zone
 from .ble.client import BoraDevice, CommandNotConfirmed, UnsupportedValue
-from .ble.transport import BoraError, PairingRequired
-from .ble.wire import Message, ProtocolError
+from .ble.transport import BoraError, PairingRequired, RpcError
+from .ble.wire import Message, ProtocolError, Stream
 from .const import CONF_ENABLE_CONTROLS, CONF_ENABLE_COOKING, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -82,11 +82,15 @@ class BoraCoordinator(DataUpdateCoordinator[dict]):
             # Cleaning/child locks, pan detection, operation duration and the
             # complete simple-mode group can affect cooking. Sensitivity cannot.
             cooking = cooking or field in {1, 2, 5, 6, 7}
-        await self._async_control(lambda: self.device.execute(command), cooking=cooking)
+        await self._async_control(
+            lambda: self.device.execute(command), command_path=path, cooking=cooking
+        )
 
     async def async_set_simple_function(self, field: str, enabled: bool) -> None:
         await self._async_control(
-            lambda: self.device.set_simple_function(field, enabled), cooking=True
+            lambda: self.device.set_simple_function(field, enabled),
+            command_path=cooktop.PREFIX + "SetSpecificCooktopSetting",
+            cooking=True,
         )
 
     def assist_presets(self, uid: str) -> tuple[presets.Preset, ...]:
@@ -109,14 +113,16 @@ class BoraCoordinator(DataUpdateCoordinator[dict]):
         if preset_id is None:
             raise HomeAssistantError("Choose an Assist for this zone before pressing Start")
         await self._async_control(
-            lambda: self.device.start_assist(uid, preset_id), cooking=True
+            lambda: self.device.start_assist(uid, preset_id),
+            command_path=zone.SERVICE_PATH + "StartOrModifyCsf",
+            cooking=True,
         )
 
     def _ensure_available(self) -> None:
         if self._closed or not self.last_update_success:
             raise HomeAssistantError("BORA is unavailable; the command was not queued")
 
-    async def _async_control(self, operation, *, cooking: bool) -> None:
+    async def _async_control(self, operation, *, command_path: str, cooking: bool) -> None:
         if not self.controls_enabled or (cooking and not self.cooking_enabled):
             raise HomeAssistantError(
                 "Enable the corresponding BORA controls in integration options"
@@ -136,6 +142,23 @@ class BoraCoordinator(DataUpdateCoordinator[dict]):
                 "Check the appliance before trying again."
             ) from err
         except (BoraError, BleakError, ProtocolError, TimeoutError) as err:
+            if (
+                isinstance(err, RpcError)
+                and err.code == 12
+                and err.request_id is not None
+                and err.path == command_path
+                and err.stream == Stream.NONE
+                and not self._closed
+                and self.last_update_success
+                and self.device.connection.connected
+            ):
+                # Only a directly rejected setter establishes this outcome.
+                # A readback or stream error can interrupt an applied command.
+                # Preserve valid monitoring without publishing a new status,
+                # retrying the request or inferring support for other actions.
+                raise HomeAssistantError(
+                    "BORA does not support this requested action."
+                ) from err
             # A timeout after transmission has an uncertain outcome. Do not
             # retry the operation or claim that the requested setting was applied.
             self.async_set_update_error(UpdateFailed("BORA command could not be confirmed"))

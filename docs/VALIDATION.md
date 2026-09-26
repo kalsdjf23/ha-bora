@@ -77,6 +77,17 @@ summarises the relevant evidence. The repository contains a
 [fixture with captured protocol data](../tests/fixtures/x_pure_3_0_9.json)
 for reproducible offline checks.
 
+The subsequent [optional diagnostic trial](HARDWARE-CHECKS.md) completed all
+six queries on the paired Mac. Wi-Fi status, debug heartbeat status, both
+event lists and saved CSF parameters returned code 0. The separate heartbeat
+period query returned an attributed code 5 without interrupting the later
+reads. Both event lists contained 600 records; the collector retained 20 from
+each and recorded 580 omissions. The saved list contained built-in indices
+1 and 2, with no entries for favorite slots 3 through 5. These results verify
+the standalone reads, not a physical HA entity or a saved-program write.
+The session sent no controls and ended with the connection closed; status
+still showed fan 1 and all four zones 0.
+
 ## Additional evidence for zone-timer status
 
 The app explicitly converts `ZoneStatus.settings.timer.duration` and
@@ -122,8 +133,8 @@ every backend performs and retains that pairing.
 
 ## What the offline tests check
 
-The latest complete local run produced **823 passing tests** and **96% coverage**
-of the integration code (2,362 statements, 83 missed). The
+The latest complete local run produced **841 passing tests** and **97% coverage**
+of the integration code (2,364 statements, 80 missed). The
 [package checks](PACKAGING.md) also run the current suite against the extracted
 runtime and distinguish earlier archives from the current candidate.
 Testing used Python 3.14.7 and the real Home
@@ -166,6 +177,11 @@ The [tests](../tests) cover, among other things:
   and not replaying control commands after reconnect.
 - Both control options, validation of zones and levels, no fabricated zero
   values, confirmation by read-back, and correct availability.
+- A directly attributed unary code-12 rejection of the expected setter leaves
+  already-valid monitoring available on a live connection. It reports the
+  requested action as unsupported without publishing a new status, replaying
+  the command or blacklisting other actions. Unknown origins, stream failures,
+  failed readback, timeouts and lost availability retain the failure path.
 - Central cooking safeguards for locks, pan detection, maximum operating time,
   and the simple-mode group, including when an internal caller omits the
   cooking flag.
@@ -234,10 +250,10 @@ including for an empty or unsupported response. The diagnostics tests also
 check that a numeric default address of 0 does not clear zero values in normal
 status; real numeric identifiers and their aliases remain redacted. The
 CLI/report workflow completed a physical 60-second read-only run; its
-read-only connection class was also used in the cooking monitor. Pairing,
-optional diagnostic queries, and interrupted connections in that workflow
-remain offline-only. Even a later successful standalone BLE trial would still
-not be an HA or proxy test.
+read-only connection class was also used in the cooking monitor. Its extended
+optional-query workflow has now run physically as described above. Pairing
+and interrupted connections in that workflow remain offline-only. These
+standalone BLE trials are not HA or proxy tests.
 
 Run from the project directory with a prepared development environment:
 

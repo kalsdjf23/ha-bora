@@ -140,6 +140,24 @@ their raw numeric types and timestamps; unknown types keep their raw values.
 These are historical categories, not current faults. Timestamp units and
 chronological ordering remain unverified. This is not periodic collection.
 
+On 26 September 2026, a supervised read-only probe called each optional query
+once on the previously paired Mac and X PURE PUXU2R, BLE firmware 3.0.9:
+
+| Query | Physical result |
+| --- | --- |
+| `GetWiFiStatus` | Success; raw status 17, `iot_hub_connection_success`, with a local UTC receipt timestamp. |
+| `GetHeartbeatStatus` | Success; request-active false, counter 0 and raw period 0. No period unit is inferred. |
+| `GetHeartbeatPeriod` | Error code 5 attributed to this exact query, request ID 14, stream `NONE`; recorded as an error, not code-12 unsupported. |
+| `ListSysEvents` and `ListUserEvents` | Each returned 600 records despite the requested limit of 20; each report retained 20 and counted 580 omitted. Unknown user-event type -1 remained `unknown_-1`. |
+| `GetSavedCsf` | Success; explicit indices 1 and 2 only, with no favorite-slot 3–5 records; see [saved Assists](SAVED-ASSISTS.md). |
+
+The probe completed with 26 trace rows and none omitted, then closed its
+connection. It sent no controls. Final status remained zones 0 and fan 1;
+manual shutdown confirmation is pending in this record. These results prove
+the stated reads and error handling on that Mac/appliance combination, not
+physical HA entity or proxy behavior. See [the hardware
+checks](HARDWARE-CHECKS.md).
+
 A method is marked unsupported only for an attributed code-12 response to
 that query. A status-stream error interrupting another request is recorded
 as an error with its original RPC context, without declaring the interrupted
@@ -164,7 +182,8 @@ clears the old value first; failed, unsupported or cancelled reads cannot leave
 it displayed as current. Disconnect, reconnect, reinitialization and unload
 also clear it. Late results from an invalidated collection cannot restore it.
 These behaviors have offline and HA-service tests with simulated Bluetooth;
-the optional method still needs a physical test on the target appliance.
+the successful physical Wi-Fi read above does not validate the HA entity or
+its cache lifecycle on a real HA adapter or proxy.
 
 Home Assistant’s diagnostics download exports only the already present cache;
 downloading itself causes no BLE traffic. Known identifying and secret fields

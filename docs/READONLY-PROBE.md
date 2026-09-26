@@ -74,7 +74,9 @@ With `--extended`, system and user histories include namespace-specific SDK
 event names alongside raw types and timestamps. Each list retains at most
 20 records in wire order, with `received_count` and `omitted_count`. Names do
 not establish current faults, and no timestamp unit or chronological order
-is assumed. These optional-read changes have offline tests only.
+is assumed. The [physical extended probe](HARDWARE-CHECKS.md) received 600
+records from each list and verified the retained-20/omitted-580 reporting.
+It also retained an unrecognized user-event type as `unknown_-1`.
 
 A successful optional Wi-Fi result also contains `read_at`, the UTC time
 immediately after that response was decoded, before later diagnostic queries.

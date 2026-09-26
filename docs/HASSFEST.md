@@ -12,7 +12,22 @@ The checkout was `/private/tmp/bora-hassfest-core`; the validation interpreter w
 
 Only the validator's missing dependencies were installed in the temporary environment: `infrared-protocols==9.0.0`, `tqdm==4.67.1`, `pipdeptree==2.26.1`, and `ruff==0.16.3`. Ruff matches the version pinned by Core 2026.9.3's hassfest Dockerfile inputs. The Core checkout's `homeassistant` path referred to the installed package of the same version, providing its manifests and constants. No validator source was modified and no validation plugins were skipped.
 
-## Reproduction command
+## Reproducing validation from a fresh checkout
+
+The checked-in [Tests workflow](../.github/workflows/tests.yml) runs the
+official hassfest action independently of local temporary directories.
+A push, pull request or manual run of **Tests** validates the selected
+revision; inspect its **Official Home Assistant hassfest** job. This runs
+validation only, without HACS submission or deployment. The action follows
+the upstream validator rather than pinning the historical Core commit above;
+see [CI.md](CI.md) for the distinction.
+
+The local paths below describe the earlier run. Temporary environments and
+checkouts can be removed by the host, and the command is not a bootstrap for
+a fresh machine. The ordinary Python test environment can be recreated using
+[CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Historical local command
 
 With the temporary environment and official checkout available, run this from the integration repository root. Resolving the integration path first keeps the command independent of the developer's home directory.
 
