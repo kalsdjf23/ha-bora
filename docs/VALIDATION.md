@@ -3,8 +3,10 @@
 Status of local preparation: 26 September 2026. The current HA code has been
 tested offline. This integration has not yet been physically validated on Home
 Assistant, Linux, or a Bluetooth proxy, and its control commands have not been
-physically validated successfully. A fan-control trial returned code 12; see
-below.
+physically validated successfully. The latest stop-only trial attributed code
+12 directly to `SetExtractorMode` for manual level 0; subsequent independent
+reads still showed fan 1 and all four zones 0. Manual shutdown confirmation
+is pending in this record. See [the hardware checks](HARDWARE-CHECKS.md).
 
 ## Different kinds of evidence
 
@@ -49,12 +51,24 @@ unavailable zone status. The resulting correction was tested offline, but has
 not yet been trialled with a new code-14 observation. See [the cooking
 observation](COOKING-OBSERVATION.md).
 
-A later [idle trial and fan-control trial](HARDWARE-CHECKS.md) used the
-current protocol client. Normal status reads, request logging, and stream
-closure succeeded. The manual fan-control trial returned code 12 in both
-control phases; the write or read-back RPC that caused it was not logged
-directly. No successful control action is therefore proven. A separate read
-afterward confirmed all four zones and the fan at 0.
+The latest [stop-only trial](HARDWARE-CHECKS.md) began after the user manually
+set the fan to 1. The initial 0 → 1 → 0 attempt aborted at preflight without
+sending a control. The agreed stop was then tested separately: it read all four zones
+at 0 and sent exactly one `SetExtractorMode` request for manual level 0, body
+`0a021000`. Its code-12 response carried request ID 12, the exact setter path,
+and stream marker `NONE`. No ON request or readback occurred in the failed
+setter phase, and the connection closed. A separate read-only session then
+completed two full rounds showing fan 1 and zones 0 before closing. The user
+was asked to stop the fan manually; no confirmation has been recorded yet.
+This establishes a rejected setter for this run, not universal write failure.
+
+Earlier [idle and fan-control trials](HARDWARE-CHECKS.md) used the protocol
+client. Normal status reads, request logging, and stream closure succeeded.
+The earlier 0 → 1 → 0 trial returned code 12 in both control phases; the
+write or read-back RPC that caused it was not logged directly and remains
+unresolved. Its separate follow-up read reported all four zones and the fan
+at 0. That historical result must not be confused with the latest fan-1
+readings. No successful control action is proven by either trial.
 
 The original research notes and private captures remain in a separate local
 research archive. That archive and the official app binary are not part of

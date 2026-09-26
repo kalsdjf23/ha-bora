@@ -28,10 +28,15 @@ corresponding command. Current physical evidence is in
 
 ## Fan
 
-The physical manual 0 → 1 → 0 trial did not confirm successful control: both
-control phases ended with code 12. The log does not yet associate the error
-with the write command or a subsequent status query. The controls below are
-therefore implementation preparation, not proven appliance functionality.
+The latest stop-only trial returned code 12 directly from `SetExtractorMode`
+requesting manual level 0. The user had manually set the fan to 1, and two
+separate status rounds after the failed command still showed fan 1 and all
+zones 0. Manual shutdown confirmation remains pending in this record.
+
+The older 0 → 1 → 0 trial also ended with code 12 in both control phases, but
+its error origin remains unresolved. No successful control is proven; the
+controls below are implementation preparation, not verified appliance
+functionality. This does not establish that every write is unsupported.
 See [the hardware report](HARDWARE-CHECKS.md). Reading levels did succeed.
 
 | Entity or feature | Conditions and behaviour |

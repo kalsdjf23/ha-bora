@@ -5,6 +5,52 @@ X PURE PUXU2R running BLE firmware 3.0.9. The user authorized the tests in
 advance. They do not test the HA adapter, Linux pairing or a Bluetooth proxy.
 Private reports are stored outside this repository.
 
+## Latest result: attributed fan-stop failure
+
+The user manually set the fan to level 1 to keep the cooktop awake. A new
+0 → 1 → 0 trial stopped at preflight because the fan was already at 1; it
+sent no control commands. The stop portion of the agreed trial was then run
+separately from the user's manually selected level 1.
+
+At 07:06:39 UTC, preflight reported all four zones in manual power mode at
+level 0 and the fan in manual mode at level 1. Exactly one control request was
+sent:
+
+| Field | Recorded value |
+| --- | --- |
+| RPC | `/bora.generic.extractor.v1.ExtractorService/SetExtractorMode` |
+| Requested state | Manual power level 0 |
+| Request body | `0a021000` |
+| Error code | 12 (`UNIMPLEMENTED`) |
+| Original error request ID | 12 |
+| Original error path | The exact `SetExtractorMode` path above |
+| Original error stream marker | `NONE` |
+
+The error response arrived at 07:06:40 UTC. The failed setter phase performed
+no readback, sent no ON request, and did not retry. The connection was closed
+at 07:06:41 UTC. This run attributes the rejection directly to the setter;
+it does not retrospectively identify the older trial's error source or prove
+that every write is unsupported.
+
+A separate read-only connection completed two full status rounds at
+07:07:03 and 07:07:08 UTC. Both still reported fan level 1 and all four zones
+at 0. It closed at 07:07:10 UTC. The user was asked to stop the fan manually;
+that confirmation is pending in this record. **Fan-off is not confirmed.**
+No successful control action is established by these checks.
+
+The official app was subsequently connected for a status-screen inspection.
+It also displayed fan level 1 and four zone-zero indicators. The inspected
+screen exposed the central fan value as an image in its status overview; no
+manual fan-level control was identified there. This does not establish that
+every app screen lacks such a control. No app control was activated, and
+Disconnect returned the app to its visibly unconnected state.
+
+A further static check confirmed the generic setter's path and body but
+found no evidenced alternative X PURE route. A separately named extractor
+protocol family in the SDK is insufficient reason to send its commands to
+this appliance. The next step is to identify a real X PURE app control and
+its caller path, if present, before another control experiment.
+
 ## Reading idle status
 
 The report workflow in `scripts/readonly_probe.py` observed status for 60
@@ -45,7 +91,7 @@ The level-1 phase ended with RPC code 12 (`UNIMPLEMENTED`). The single level-0
 shutdown phase also ended with code 12. No command was repeated, no zones
 were operated and the connection was closed.
 
-**The error is not yet conclusively associated with one RPC.** The trial log
+**This older trial's error is not conclusively associated with one RPC.** Its log
 records phases without per-RPC paths or request IDs. The first phase includes
 the write and an extraction status request; the shutdown phase includes the
 write and the usual status requests. This establishes neither successful
@@ -57,15 +103,15 @@ was also closed. This confirms the final state, not a successful shutdown comman
 
 Static application analysis confirms the path and message structure for
 manual levels 1 and 0. An advertised power mode and level list do not establish
-support for the setter. The next targeted test needs to associate the error
-with its exact RPC; there is no basis for trying arbitrary payloads, handshakes
-or unrelated controls.
+support for the setter. This gap motivated the later attributed stop-only
+test above; there is no basis for trying arbitrary payloads, handshakes or
+unrelated controls.
 
 The transport layer now retains the RPC path, request ID and stream marker
 of the original error response. Diagnostics export this context without raw
 error text. This is tested offline, including a stream failure that interrupts
-another request. It does not add missing evidence to the previous trial;
-a new physical test is still needed to identify the source of code 12.
+another request. It does not add missing evidence to this older trial;
+the later stop-only trial identifies the source only for that new run.
 
 ## Resumed trial with error attribution
 
@@ -78,5 +124,6 @@ The first physical attempt with this helper ended with `ConnectionLost`
 before the initial status check. Its RPC trace was empty and it recorded no
 RPC error response. No start or stop command was attempted, and the client
 closed. This result does not identify the previous code-12 source or prove
-that standby caused the connection failure. The next trial still requires
-the cooktop to be reachable with all zones and extraction initially at 0.
+that standby caused the connection failure. A later 0 → 1 → 0 attempt was
+blocked by its fan-0 preflight requirement; the separate
+stop-only result is recorded at the top of this document.
