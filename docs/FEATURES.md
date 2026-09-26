@@ -28,11 +28,17 @@ corresponding command. Current physical evidence is in
 
 ## Fan
 
-The latest stop-only trial returned code 12 directly from `SetExtractorMode`
+One stop-only trial returned code 12 directly from `SetExtractorMode`
 requesting manual level 0. The user had manually set the fan to 1, and two
 separate status rounds after the failed command still showed fan 1 and all
 zones 0. The user subsequently confirmed stopping extraction and after-run
 manually; no remote stop was established.
+
+A later trial of the separate `StopAfterRun` method also returned an
+attributed code 12, while fresh preflight reads showed active after-run.
+It sent one empty-body request and closed without retry. The current
+evidence establishes neither remote manual-level control nor a remote
+after-run stop.
 
 The older 0 → 1 → 0 trial also ended with code 12 in both control phases, but
 its error origin remains unresolved. No successful control is proven; the

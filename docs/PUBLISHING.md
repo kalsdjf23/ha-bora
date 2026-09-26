@@ -52,7 +52,9 @@ class was also used during the [cooking observation](COOKING-OBSERVATION.md).
 A later extended probe checked all six optional reads: five succeeded, while
 the separate heartbeat-period request returned code 5 without stopping the
 other reads. A new stop-only trial attributed code 12 directly to the manual
-zero `SetExtractorMode` request; no successful fan control is established.
+zero `SetExtractorMode` request. A subsequent, separate `StopAfterRun` trial
+also received an attributed code 12 with an empty Error payload; no
+successful fan control is established.
 The original trial's error origin remains unknown. The coordinator now
 preserves valid monitoring for an explicitly rejected setter; this behavior
 has offline regression coverage, not a physical HA trial.

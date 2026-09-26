@@ -18,13 +18,12 @@ extraction levels and the start of automatic after-run. A failure caused by a
 temporarily unavailable zone was then fixed and tested offline; recovery from
 that specific error still needs to be reproduced on the appliance.
 
-The latest [fan stop trial](docs/HARDWARE-CHECKS.md) attributed code 12
-(`UNIMPLEMENTED`) directly to `SetExtractorMode` requesting manual level 0.
-The user had manually set level 1; two independent status rounds after the
-failed stop still showed fan 1 and all four zones 0. The user subsequently
-confirmed stopping extraction, including after-run, manually. No successful
-control is proven. The earlier trial's code-12 origin remains unresolved; this new result
-does not establish that all writes are unsupported. The expanded
+Separate [fan stop trials](docs/HARDWARE-CHECKS.md) attributed code 12
+(`UNIMPLEMENTED`) directly to both `SetExtractorMode` requesting manual
+level 0 and the dedicated `StopAfterRun` method. Active after-run was read
+before the latter request; it was not retried. No successful control is
+proven. The oldest trial's code-12 origin remains unresolved; these newer
+results do not establish that all writes are unsupported. The expanded
 [fan-control investigation](docs/FAN-CONTROL-INVESTIGATION.md) records the
 confirmed app route and remaining evidence needed.
 

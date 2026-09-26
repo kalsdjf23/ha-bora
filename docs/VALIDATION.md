@@ -3,10 +3,13 @@
 Status of local preparation: 26 September 2026. The current HA code has been
 tested offline. This integration has not yet been physically validated on Home
 Assistant, Linux, or a Bluetooth proxy, and its control commands have not been
-physically validated successfully. The latest stop-only trial attributed code
+physically validated successfully. One stop-only trial attributed code
 12 directly to `SetExtractorMode` for manual level 0; subsequent independent
 reads still showed fan 1 and all four zones 0. The user subsequently confirmed
 manual shutdown, including after-run. See [the hardware checks](HARDWARE-CHECKS.md).
+A later dedicated `StopAfterRun` trial also received an attributed code 12
+after two fresh reads of active after-run; its Error payload was empty.
+No successful remote stop was established by either operation.
 
 ## Different kinds of evidence
 
@@ -51,7 +54,7 @@ unavailable zone status. The resulting correction was tested offline, but has
 not yet been trialled with a new code-14 observation. See [the cooking
 observation](COOKING-OBSERVATION.md).
 
-The latest [stop-only trial](HARDWARE-CHECKS.md) began after the user manually
+The manual-level [stop-only trial](HARDWARE-CHECKS.md) began after the user manually
 set the fan to 1. The initial 0 → 1 → 0 attempt aborted at preflight without
 sending a control. The agreed stop was then tested separately: it read all four zones
 at 0 and sent exactly one `SetExtractorMode` request for manual level 0, body

@@ -1,8 +1,9 @@
 # Investigating X PURE fan control
 
 Manual fan control remains unverified on the tested X PURE PUXU2R running
-BLE firmware 3.0.9. One supervised stop request received a response that is
-conclusively attributable to that setter: code 12 (`UNIMPLEMENTED`). Static
+BLE firmware 3.0.9. Two separate supervised operations received conclusively
+attributed code-12 (`UNIMPLEMENTED`) responses: manual power zero through
+`SetExtractorMode`, and the dedicated `StopAfterRun` method. Static
 inspection confirms that the official app selects the same legacy service
 family for X PURE, but has not identified a different supported fan-control
 operation or an additional control-enabling handshake.
@@ -45,6 +46,22 @@ RPC. Its phases included both a setter and status reads. The later result
 does not retrospectively resolve that older error's origin. See
 [the supervised hardware record](HARDWARE-CHECKS.md) for both histories.
 
+## Dedicated after-run stop
+
+A later trial tested `StopAfterRun` with its verified empty request, while
+two fresh status readings showed manual fan 1 and more than 28 minutes of
+after-run remaining. Exactly one stop request received code 12 at
+09:16:03 UTC, with request ID 3, the exact method path and stream `NONE`.
+Its Error object was present but empty, so the firmware supplied no further
+explanation. The connection closed without retry or status readback; no
+successful stop is established. See the [hardware record](HARDWARE-CHECKS.md)
+for the preflight and cleanup evidence.
+
+This tests a distinct method, not a different encoding of manual fan zero.
+Its schema is established, but no high-level official-app caller was found
+in the bounded static analysis. Neither result explains the firmware's
+underlying reason or demonstrates a working fan-control alternative.
+
 ## Confirmed app route and limits of static analysis
 
 Read-only inspection used BORA One 1.9.1, build 130922. The product factory
@@ -63,6 +80,7 @@ The investigation narrowed several proposed alternatives:
 | An unobserved manual fan caller | Bounded Kotlin interface-dispatch and Objective-C selector-reference scans found generated setter bridges, but no application-level manual fan call. The inspected cooktop repository exposes extractor observation, not a manual fan setter. Dynamic invocation, other code and other builds remain outside this negative result. |
 | A connection authorization flag | The higher-level connection Boolean enforces an already-bonded device and otherwise raises `NotBondedException`. It is a local connection requirement, not a newly identified firmware authorization request. |
 | ConnectionService or heartbeat setup | The inspected connection path and bounded dispatch scans supplied no positive evidence of an extra control-enabling request. Existing heartbeat/status methods do not, by their names alone, establish that prerequisite. |
+| A settings-page control unlock | The examined device-settings model exposes rename/Wi-Fi options. Setter and `GetUserConfirmation` references examined through direct calls, interface dispatch and Objective-C selectors resolve to generated bindings or read streams; no concrete settings-write confirmation sequence or control-enable flag was established. This is not an exhaustive statement about every app screen or firmware prerequisite. |
 | Missing request authorization headers | The shared request builder uses empty headers, client-stream `NONE`, and empty unknown fields. The unary fetch also uses server-stream `NONE`. The same request is serialized and framed downstream; no extra authorization header or replacement request was found in that inspected path. This narrows the envelope hypothesis, not every possible session prerequisite. |
 | A generic “manual control” app action | The shared action emits a local navigation event. The concrete manual-control feature identified in the inspected metadata belongs to the cooking thermometer. The complete navigation branch was not reconstructed, so the label does not identify an X PURE fan action. |
 

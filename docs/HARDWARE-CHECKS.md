@@ -5,10 +5,45 @@ X PURE PUXU2R running BLE firmware 3.0.9. The user authorized the tests in
 advance. They do not test the HA adapter, Linux pairing or a Bluetooth proxy.
 Private reports are stored outside this repository.
 
+## Attributed after-run stop failure
+
+After the user confirmed that after-run was active, a separate bounded trial
+tested the dedicated `StopAfterRun` method. An initial attempt could not
+access Bluetooth from the restricted process; it sent no appliance command.
+A discovery-only check with Bluetooth access succeeded, after which the
+authorized trial connected once.
+
+| Observation | Recorded value |
+| --- | --- |
+| First status read | 09:16:00.686 UTC; manual fan 1, 1,725,000 ms of after-run remaining |
+| Second status read | 09:16:03.161 UTC; manual fan 1, 1,720,000 ms of after-run remaining |
+| RPC | `/bora.generic.extractor.v1.ExtractorService/StopAfterRun` |
+| Request body | Empty, as defined by the inspected schema |
+| Requests for this control | Exactly one; no start, retry or reconnect |
+| Response | 09:16:03.758 UTC; code 12 (`UNIMPLEMENTED`), request ID 3, exact `StopAfterRun` path, stream `NONE` |
+| Error details | An Error object was present with an empty payload; no explanatory message |
+| Cleanup | Connection closed at 09:16:03.758 UTC |
+
+The two preflight reads established active after-run well above the trial's
+one-minute threshold. The failed control phase performed no status readback;
+neither a zero countdown nor physical silence was established. The user
+subsequently chose to leave after-run running intentionally while remaining
+present. No further appliance action was taken. Earlier manual shutdown
+confirmations concern earlier trials only.
+
+The dedicated after-run stop was rejected, separately from the earlier
+manual-power-zero setter. This is not evidence that every write fails, and
+does not test wake or the Home Assistant adapter. The private helper's nine
+simulated-GATT scenarios cover acceptance, rejection, unchanged readback,
+already-off/near-expiry preflight, lost reply, disconnect, read-only mode and
+cancellation after transmission. They establish the helper's bounds and
+reporting, not appliance support.
+
 ## Optional diagnostic reads
 
-A later bounded read-only session used the current protocol client with the
-six explicit optional queries. It completed without an overall probe error
+Before the dedicated `StopAfterRun` trial, a bounded read-only session used
+the current protocol client with the six explicit optional queries. It
+completed without an overall probe error
 and closed the connection. Its trace contains 26 attempts with no omissions:
 two metadata reads, three status subscriptions, two complete six-request
 status rounds, six optional reads and three subscription stops. No pairing,
