@@ -13,6 +13,12 @@ vereist Python 3.14 of nieuwer en Home Assistant 2026.9.3. De workflow installee
 `pip check`. Hiermee is de omgeving gekozen; pas een geslaagde GitHub-run
 bewijst dat de installatie en tests op die runner slagen.
 
+De [eerste private GitHub-run](https://github.com/kalsdjf23/ha-bora/actions/runs/36221654783)
+op commit `9c4495b0a10c6b549cfcafba4b54b006c1952ee5` is geslaagd:
+**720 tests, 96% coverage**, Ruff, `pip check` en de officiële hassfest-action.
+Deze run gebruikte Ubuntu 24.04 en Python 3.14.7. HACS-validatie maakte er
+geen deel van uit.
+
 ## Action-referenties en rechten
 
 - [`actions/checkout@v7`](https://github.com/actions/checkout/tree/v7) haalt

@@ -113,6 +113,8 @@ tegen core 2026.9.3, commit `6de5eb18cd4502f94af44cfff3a02250d88716ed`.
 Ook de nieuwe abortvertaling voor een afwijkende reauthenticatie-identiteit
 zat in deze validatie. Het [hassfest-verslag](HASSFEST.md) bevat de
 reproduceerbare opdracht.
+Ook de [eerste private GitHub-run](CI.md) slaagde op Ubuntu 24.04/Python 3.14.7:
+720 tests, 96% coverage, Ruff, dependencycontrole en de officiële hassfest-action.
 De officiële HACS-validator is nog niet uitgevoerd. Zijn
 [entrypoint](https://github.com/hacs/integration/blob/main/action/action.py)
 vereist een GitHub-token en repositorynaam; de

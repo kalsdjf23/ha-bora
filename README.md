@@ -117,7 +117,7 @@ Zie [VALIDATION.md](docs/VALIDATION.md) voor de betekenis en grenzen van die tes
 en [PROTOCOL.md](docs/PROTOCOL.md) voor de protocolbeschrijving.
 [APP-COVERAGE.md](docs/APP-COVERAGE.md) bewaakt de brede functiedekking;
 [READONLY-PROBE.md](docs/READONLY-PROBE.md) beschrijft een voorbereide, begrensde
-uitleesproef voor een later testmoment. Dat hulpmiddel heeft zeventien offline tests;
-de volledige CLI/rapportworkflow is nog niet op hardware uitgevoerd.
+uitleesproef. Dat hulpmiddel heeft zeventien offline tests; de gewone
+rapportworkflow is ook op de gekoppelde Mac [fysiek gecontroleerd](docs/HARDWARE-CHECKS.md).
 Het project gebruikt de [MIT-licentie](LICENSE). Het is geen officieel BORA-product
 en bevat geen distributie van de officiële BORA-app.

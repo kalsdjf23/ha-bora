@@ -48,7 +48,8 @@ is. Een reeds wachtende opdracht kan daardoor niet alsnog een inmiddels
 onbeschikbare zone bedienen. Een ontbrekende teruglezing bevestigt geen opdracht.
 
 Deze correctie is offline getest, inclusief HA-coordinator- en entiteitsgedrag,
-beide berichtvolgordes en verbindingsverlies. **De correctie is nog niet opnieuw
-op het apparaat getest.** Er is na het verzoek om af te ronden geen nieuwe
-Bluetooth-verbinding geopend. Dit is ook geen bewijs voor HA/Linux-pairing,
+beide berichtvolgordes en verbindingsverlies. Een later afzonderlijk toegestane
+[uitleesproef](HARDWARE-CHECKS.md) met de nieuwe client verliep zonder fouten.
+**Code 14 trad daarbij niet opnieuw op:** het herstel van deze specifieke fout
+blijft alleen offline getoetst. Dit is ook geen bewijs voor HA/Linux-pairing,
 proxyondersteuning of fysieke bedieningscommando's.

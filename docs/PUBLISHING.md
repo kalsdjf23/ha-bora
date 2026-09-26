@@ -54,7 +54,8 @@ zoals beschreven in [FEATURES.md](FEATURES.md) en
 [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). De bredere functiedoelen staan in
 [APP-COVERAGE.md](APP-COVERAGE.md). Ook is een begrensd
 [read-only proefscript](READONLY-PROBE.md) voorbereid en met zeventien offline tests
-getest; de volledige CLI/rapportworkflow is nog niet op hardware uitgevoerd.
+getest. De gewone rapportworkflow is op de gekoppelde Mac
+[fysiek gecontroleerd](HARDWARE-CHECKS.md), zonder zonecode 14 te reproduceren.
 Dezelfde read-only verbindingsklasse is wel tijdens de
 [kookmeting](COOKING-OBSERVATION.md) gebruikt.
 

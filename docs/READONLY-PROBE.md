@@ -2,9 +2,10 @@
 
 `scripts/readonly_probe.py` is een ontwikkelhulpmiddel voor een aanwezige
 gebruiker. De CLI en rapportworkflow zijn met gesimuleerde peers getest.
-De read-only verbindingsklasse is daarnaast gebruikt door een afzonderlijke
-[live kookmonitor](COOKING-OBSERVATION.md); de volledige CLI/rapportworkflow
-is nog niet op hardware uitgevoerd.
+De read-only verbindingsklasse is gebruikt door een afzonderlijke
+[live kookmonitor](COOKING-OBSERVATION.md). Ook de gewone rapportworkflow is
+inmiddels op de eerder gekoppelde Mac [fysiek uitgevoerd](HARDWARE-CHECKS.md).
+Pairing, uitgebreide diagnosevragen en foutpaden zijn in die proef niet getest.
 
 Hij maakt expliciet verbinding met één opgegeven Bluetooth-identiteit, leest
 metadata en status, volgt maximaal vijf minuten de gewone statusstreams en
@@ -54,6 +55,8 @@ Een geregistreerde poging bewijst niet dat alle bytes het apparaat bereikten.
 streammarker of statusbody kan daarna nog worden afgekeurd. `cancelled` en
 fouten zonder antwoordcode krijgen geen verzonnen apparaatantwoord. Deze
 registratie is offline getest, ook voor zonecode 14 en streamafsluiting.
+De fysieke rustproef bevestigde normale antwoorden en streamafsluiting;
+zonecode 14 trad daarbij niet op.
 
 Dit is een zelfstandige BLE-proef, geen HA-installatie en geen
 Bluetooth-proxytest. De uiteindelijke integratie gebruikt afzonderlijk de
