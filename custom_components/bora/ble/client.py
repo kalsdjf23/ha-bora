@@ -57,10 +57,12 @@ class BoraDevice:
     def __init__(
         self, connection: BrpcConnection, updated: Callable[[], None] | None = None,
         *, favorites_updated: Callable[[], None] | None = None,
+        diagnostics_updated: Callable[[], None] | None = None,
     ):
         self.connection = connection
         self._updated = updated
         self._favorites_updated = favorites_updated
+        self._diagnostics_updated = diagnostics_updated
         self.information: dict = {}
         self.descriptor: dict = {}
         self.diagnostic_snapshot: dict = {}
@@ -73,6 +75,8 @@ class BoraDevice:
         self._assist_uncertain: dict[str, tuple[str, bytes]] = {}
         self._favorites: dict | None = None
         self._favorites_epoch = 0
+        self._wifi: dict | None = None
+        self._wifi_epoch = 0
 
     @property
     def snapshot(self) -> dict:
@@ -91,6 +95,33 @@ class BoraDevice:
         self._favorites_epoch += 1
         if self._favorites_updated:
             self._favorites_updated()
+
+    @property
+    def wifi_snapshot(self) -> dict | None:
+        """Last explicit Wi-Fi read from this connection, without network identifiers."""
+        if self._closed or not self.connection.connected:
+            return None
+        return deepcopy(self._wifi)
+
+    def invalidate_wifi(self) -> None:
+        self._wifi = None
+        self.diagnostic_snapshot.pop("wifi_status", None)
+        self._wifi_epoch += 1
+        if self._diagnostics_updated:
+            self._diagnostics_updated()
+
+    def _store_wifi(self, result: dict, epoch: int) -> None:
+        self._assert_connected()
+        if epoch != self._wifi_epoch:
+            raise ConnectionLost("The Wi-Fi read belongs to an earlier connection")
+        status = result["data"]["connection_status"]
+        self._wifi = {
+            "connection_status": status,
+            "connection_status_name": identify.WIFI_STATUS_NAMES.get(status, f"unknown_{status}"),
+            "read_at": result["read_at"],
+        }
+        if self._diagnostics_updated:
+            self._diagnostics_updated()
 
     def _store_favorites(self, parameters: list[dict], epoch: int) -> None:
         self._assert_connected()
@@ -142,6 +173,7 @@ class BoraDevice:
     async def _initialize(self, *, pair: bool = False, subscribe: bool = True) -> dict:
         self._ready = False
         self.invalidate_favorites()
+        self.invalidate_wifi()
         # Rebuilding subscriptions needs a fresh generation: an older stream
         # for the same path must not be mistaken for the new setup response.
         if self.connection.connected:
@@ -470,18 +502,26 @@ class BoraDevice:
         async with self._lock:
             self._assert_connected()
             self.invalidate_favorites()
+            self.invalidate_wifi()
             epoch = self._favorites_epoch
+            wifi_epoch = self._wifi_epoch
             self.diagnostic_snapshot = await diagnostic_client.async_collect(self.connection)
             saved = self.diagnostic_snapshot.get("saved_csf", {})
-            if (
-                saved.get("status") == "ok"
-                and favorites.supports_favorites(self.information, self.descriptor)
-            ):
-                try:
+            wifi = self.diagnostic_snapshot.get("wifi_status", {})
+            try:
+                if (
+                    saved.get("status") == "ok"
+                    and favorites.supports_favorites(self.information, self.descriptor)
+                ):
                     self._store_favorites(saved["data"], epoch)
-                except ConnectionLost:
-                    self.diagnostic_snapshot.pop("saved_csf", None)
-                    raise
+                if wifi.get("status") == "ok" and isinstance(wifi.get("data"), dict):
+                    self._store_wifi(wifi, wifi_epoch)
+            except ConnectionLost:
+                # Neither display may retain a result from an invalidated
+                # collection, including when the other cache fails first.
+                self.invalidate_favorites()
+                self.invalidate_wifi()
+                raise
             return deepcopy(self.diagnostic_snapshot)
 
     async def refresh_favorites(self) -> dict:
@@ -504,6 +544,7 @@ class BoraDevice:
     async def close(self) -> None:
         self._ready = False
         self.invalidate_favorites()
+        self.invalidate_wifi()
         await self.connection.disconnect()
 
     def _assert_open(self) -> None:

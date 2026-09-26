@@ -1,6 +1,7 @@
 """Explicit, one-shot read-only diagnostics; never part of ordinary polling."""
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from . import identify
@@ -69,4 +70,6 @@ async def async_collect(connection: BrpcConnection) -> dict[str, Any]:
                 }
             else:
                 result[name] = {"status": "ok", "data": data}
+                if name == "wifi_status":
+                    result[name]["read_at"] = datetime.now(UTC).isoformat()
     return result

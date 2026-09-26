@@ -140,6 +140,27 @@ that query. A status-stream error interrupting another request is recorded
 as an error with its original RPC context, without declaring the interrupted
 method unsupported or exposing raw error text.
 
+The **Last reported Wi-Fi status** diagnostic sensor is disabled by default.
+Enable it and the **Refresh diagnostics** button in Home Assistant's entity
+settings, then press the button to read the optional status. Both work with
+control options disabled. No Wi-Fi query is sent by enabling the sensor,
+normal status polling, reconnecting, or restoring the integration.
+
+The sensor retains the named status, including distinct `wifi_connected`,
+`no_internet` and `internet_access` values. Unknown enums remain
+`unknown_<code>`. Its only extra attributes are `connection_status` (the raw
+code) and `last_read` (the UTC time that the Wi-Fi response was decoded).
+It exposes no SSID, MAC/IP address or time zone. This is the last explicitly
+read result, not a continuously updated connection indicator.
+
+The sensor is unavailable until a usable response arrives. A missing response
+wrapper is not treated as an off or unspecified state. A new explicit refresh
+clears the old value first; failed, unsupported or cancelled reads cannot leave
+it displayed as current. Disconnect, reconnect, reinitialization and unload
+also clear it. Late results from an invalidated collection cannot restore it.
+These behaviors have offline and HA-service tests with simulated Bluetooth;
+the optional method still needs a physical test on the target appliance.
+
 Home Assistant’s diagnostics download exports only the already present cache;
 downloading itself causes no BLE traffic. Known identifying and secret fields
 are redacted. Review an export before sharing it publicly, especially for new

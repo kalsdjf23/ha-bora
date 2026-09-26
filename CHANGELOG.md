@@ -2,6 +2,10 @@
 
 ## 0.1.0 — development draft, unreleased
 
+- Optional, disabled-by-default last-reported Wi-Fi diagnostic sensor, refreshed
+  only by the existing diagnostics button. Shows the response's UTC read time
+  and status code without network identifiers. Failed/cancelled reads and
+  connection changes invalidate its cache; no automatic queries or restoration.
 - Attribute unsupported-method fallback to the attempted RPC, so an unrelated
   status-stream failure cannot silently disable another stream or mislabel an
   optional diagnostic method as unsupported.

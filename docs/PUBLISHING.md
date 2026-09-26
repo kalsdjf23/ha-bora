@@ -14,7 +14,7 @@ an MIT license, `manifest.json`, `hacs.json` and an original project icon.
 The metadata version is `0.1.0`; this is not a published release.
 Documentation, code, comments, interface text and GitHub material use English.
 
-The current contents passed **791 local offline tests with 96% integration-code
+The current contents passed **823 local offline tests with 96% integration-code
 coverage** and Ruff. Official hassfest validation, including `--requirements`,
 passed earlier; the first three GitHub CI runs also passed. See
 [VALIDATION.md](VALIDATION.md) for versions, coverage and evidence limits.
@@ -24,8 +24,8 @@ pull requests. The HACS workflow is manual only and has not been dispatched.
 Changing repository visibility does not trigger it. No workflow creates a
 release, changes repository visibility or submits the integration to HACS.
 
-A [local package for manual testing](PACKAGING.md) is also available: r4 has
-32 files, a reproducible ZIP, and **791 passing offline tests using the extracted
+A [local package for manual testing](PACKAGING.md) is also available: r5 has
+32 files, a reproducible ZIP, and **823 passing offline tests using the extracted
 integration code**. This package is not a published release or a HACS release
 asset and has not been installed on the real Home Assistant instance.
 
@@ -35,6 +35,11 @@ no cloud calls at runtime. See [ASSIST-PRESETS.md](ASSIST-PRESETS.md) for the
 exact defaults and outstanding physical checks. The
 [saved favorites view](SAVED-ASSISTS.md) includes tests through HA services,
 cache invalidation on reconnect and explicit reads only.
+
+The optional **Last reported Wi-Fi status** sensor also uses explicit
+diagnostic reads only. Its read timestamp and cache lifetime are tested through
+HA services with a simulated peer; optional Wi-Fi hardware support is still
+unverified. See [FEATURES.md](FEATURES.md) for enabling it and its limitations.
 
 Zone timer status is readable; timer controls and other uncertainties remain
 as described in [FEATURES.md](FEATURES.md) and [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md).

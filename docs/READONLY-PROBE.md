@@ -76,6 +76,14 @@ event names alongside raw types and timestamps. Each list retains at most
 not establish current faults, and no timestamp unit or chronological order
 is assumed. These optional-read changes have offline tests only.
 
+A successful optional Wi-Fi result also contains `read_at`, the UTC time
+immediately after that response was decoded, before later diagnostic queries.
+A successful response with no status wrapper keeps `data: null`; it does not
+fabricate a connection state. Failed Wi-Fi requests have no read timestamp.
+The Home Assistant integration separately uses usable explicit results for
+its disabled-by-default **Last reported Wi-Fi status** sensor; see
+[FEATURES.md](FEATURES.md).
+
 This is a standalone BLE test, not an HA installation or a Bluetooth proxy
 test. The integration separately uses Home Assistant's Bluetooth manager.
 

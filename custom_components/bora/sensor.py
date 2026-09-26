@@ -42,6 +42,26 @@ class BoraSensor(BoraEntity, SensorEntity):
         return self._attributes(self.snapshot)
 
 
+class BoraWifiStatusSensor(BoraSensor):
+    """Show the last explicit diagnostic read, without polling or network IDs."""
+
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator):
+        super().__init__(
+            coordinator,
+            "wifi_status",
+            "Last reported Wi-Fi status",
+            lambda coord: getattr(coord.device, "wifi_snapshot", None),
+            lambda snapshot: snapshot["connection_status_name"],
+            attributes=lambda snapshot: {
+                "connection_status": snapshot["connection_status"],
+                "last_read": snapshot["read_at"],
+            },
+            diagnostic=True,
+        )
+
+
 def _program_attributes(coordinator, uid, status):
     preset = presets.reported_preset(
         coordinator.device.information, coordinator.device.descriptor, uid, status
@@ -55,6 +75,7 @@ def _program_attributes(coordinator, uid, status):
 
 def build_entities(coordinator):
     entities = [
+        BoraWifiStatusSensor(coordinator),
         BoraSensor(
             coordinator,
             "extractor_level",

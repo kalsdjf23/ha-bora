@@ -108,12 +108,10 @@ every backend performs and retains that pairing.
 
 ## What the offline tests check
 
-The latest complete local run produced **791 passing tests** and **96% coverage**
-of the integration code (2,324 statements, 84 missed). The preceding run had
-737 tests. The 54 additional cases cover event namespaces and retention limits,
-attributed unsupported-method responses, interrupted initialization, and closing
-old subscriptions before reinitialization. The earlier r2
-[trial package](PACKAGING.md) predates this runtime change and had 714 tests.
+The latest complete local run produced **823 passing tests** and **96% coverage**
+of the integration code (2,362 statements, 83 missed). The
+[package checks](PACKAGING.md) also run the current suite against the extracted
+runtime and distinguish earlier archives from the current candidate.
 Testing used Python 3.14.7 and the real Home
 Assistant 2026.9.3 runtime, while the Bluetooth peer remained simulated. The
 fixtures include 39 earlier sanitised responses and four selected payloads
@@ -178,6 +176,12 @@ The [tests](../tests) cover, among other things:
   raw timestamps, duplicate entries and wire order; local retention of at most
   20 records per list with received/omitted counts even if the peer ignores
   the requested limit. These checks do not establish time units or live faults.
+- The optional last-reported Wi-Fi sensor through actual HA services and a
+  simulated peer: disabled registry defaults, explicit reads with controls off,
+  distinct/unknown statuses, no network identifiers or automatic queries,
+  exact response timestamp, and invalidation on failure, cancellation,
+  disconnect, reconnect and reload. A late cache failure clears both Wi-Fi and
+  saved-Assist display results, including their diagnostic copies.
 - Assist selection without I/O, explicit start, a fresh off-state check,
   rejection of active/bridged zones and differing preset parameters, repeated
   presses without altering a running program, and no replay after reconnect.

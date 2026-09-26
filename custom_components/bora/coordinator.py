@@ -37,10 +37,12 @@ class BoraCoordinator(DataUpdateCoordinator[dict]):
             hass, entry.data["address"], disconnected=self._on_disconnect
         )
         self.device = BoraDevice(
-            connection, updated=self._on_update, favorites_updated=self._on_favorites_update
+            connection, updated=self._on_update,
+            favorites_updated=self._on_optional_update,
+            diagnostics_updated=self._on_optional_update,
         )
 
-    def _on_favorites_update(self) -> None:
+    def _on_optional_update(self) -> None:
         if not self._closed:
             self.async_update_listeners()
 
@@ -50,6 +52,7 @@ class BoraCoordinator(DataUpdateCoordinator[dict]):
 
     def _on_disconnect(self) -> None:
         self.device.invalidate_favorites()
+        self.device.invalidate_wifi()
         if not self._closed:
             self.async_set_update_error(UpdateFailed("BORA Bluetooth connection lost"))
 

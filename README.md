@@ -36,6 +36,8 @@ controls therefore remain experimental; status reads did work.
 - Stored app favorites through an explicit refresh button and three status sensors.
 - Pause, child lock, cleaning lock, signal volume, touch sensitivity and other supported settings.
 - Device information, error codes and optional diagnostics collected only on request.
+- Optional **Last reported Wi-Fi status**, with an explicit read time and no
+  automatic Wi-Fi polling or network identifiers in its attributes.
 
 Entities and choices follow the device descriptor and available status messages.
 Not every model gets every feature. See [FEATURES.md](docs/FEATURES.md) for the
@@ -101,7 +103,7 @@ Protocol code is independent of Home Assistant under
 The adapter, coordinator and entities connect that layer to Home Assistant.
 Tests use fixtures and a simulated BLE peer; they never connect to the cooktop.
 
-The latest local check passed **791 tests with 96% integration-code coverage**,
+The latest local check passed **823 tests with 96% integration-code coverage**,
 using Python 3.14.7 and the actual Home Assistant 2026.9.3 test runtime. Ruff
 passed. Earlier official [hassfest validation](docs/HASSFEST.md), including
 the requirements check, and [GitHub CI](docs/CI.md) also passed.
