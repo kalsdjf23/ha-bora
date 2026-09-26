@@ -11,7 +11,7 @@ from test_diagnostics import successful_responses
 from custom_components.bora.ble import identify
 from custom_components.bora.ble.client import BoraDevice, UnsupportedValue
 from custom_components.bora.ble.transport import ConnectionLost, RequestTimeout, RpcError
-from custom_components.bora.ble.wire import ProtocolError, blob, uint
+from custom_components.bora.ble.wire import ProtocolError, Stream, blob, uint
 
 SAVED = identify.get_saved_csf()
 POPULATED = blob(1, uint(1, 62176) + uint(3, 3) + uint(4, 2))
@@ -182,7 +182,7 @@ async def test_diagnostics_uses_its_single_saved_read_to_update_the_same_display
     assert connection.requests[before:].count(SAVED) == 1
     assert result["saved_csf"]["data"][0]["csf_id"] == 62176
     assert device.favorites_snapshot["slots"][3]["label"] == "Cook egg dishes"
-    connection.saved_reply = RpcError(12)
+    connection.saved_reply = RpcError(12, request_id=1, path=SAVED[0], stream=Stream.NONE)
     result = await device.collect_diagnostics()
     assert result["saved_csf"]["status"] == "unsupported"
     assert device.favorites_snapshot is None

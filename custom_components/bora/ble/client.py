@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from . import cooktop, diagnostic_client, extractor, favorites, identify, presets, zone
 from .confirmation import command_confirmed
 from .transport import BoraError, BrpcConnection, ConnectionLost, RpcError
-from .wire import Message, ProtocolError
+from .wire import Message, ProtocolError, Stream
 
 UNIMPLEMENTED = 12
 UNAVAILABLE = 14
@@ -142,6 +142,10 @@ class BoraDevice:
     async def _initialize(self, *, pair: bool = False, subscribe: bool = True) -> dict:
         self._ready = False
         self.invalidate_favorites()
+        # Rebuilding subscriptions needs a fresh generation: an older stream
+        # for the same path must not be mistaken for the new setup response.
+        if self.connection.connected:
+            await self.connection.disconnect()
         candidates = (
             (extractor.STREAM_PATH, "extractor", extractor.decode_status),
             (cooktop.STREAM_PATH, "cooktop", cooktop.decode_status),
@@ -163,7 +167,12 @@ class BoraDevice:
                         await self._query(identify.get_information())
                     )
                 except RpcError as err:
-                    if err.code != UNIMPLEMENTED:
+                    if (
+                        err.code != UNIMPLEMENTED
+                        or err.path != identify.get_information()[0]
+                        or err.request_id is None
+                        or err.stream != Stream.NONE
+                    ):
                         raise
                     self.information = {}
                 if subscribe:
@@ -177,7 +186,15 @@ class BoraDevice:
                                 path, self._stream_callback(category, decoder)
                             )
                         except RpcError as err:
-                            if err.code != UNIMPLEMENTED:
+                            # An established stream can fail another pending
+                            # subscription. Only this path's setup response
+                            # establishes that the attempted method is absent.
+                            if (
+                                err.code != UNIMPLEMENTED
+                                or err.path != path
+                                or err.request_id is None
+                                or err.stream not in (Stream.NONE, Stream.START)
+                            ):
                                 raise
                             self._unsupported_streams.add(path)
                             break

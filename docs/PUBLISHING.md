@@ -14,7 +14,7 @@ an MIT license, `manifest.json`, `hacs.json` and an original project icon.
 The metadata version is `0.1.0`; this is not a published release.
 Documentation, code, comments, interface text and GitHub material use English.
 
-The current contents passed **737 local offline tests with 96% integration-code
+The current contents passed **791 local offline tests with 96% integration-code
 coverage** and Ruff. Official hassfest validation, including `--requirements`,
 passed earlier; the first three GitHub CI runs also passed. See
 [VALIDATION.md](VALIDATION.md) for versions, coverage and evidence limits.
@@ -24,8 +24,8 @@ pull requests. The HACS workflow is manual only and has not been dispatched.
 Changing repository visibility does not trigger it. No workflow creates a
 release, changes repository visibility or submits the integration to HACS.
 
-A [local package for manual testing](PACKAGING.md) is also available: r3 has
-32 files, a reproducible ZIP, and **737 passing offline tests using the extracted
+A [local package for manual testing](PACKAGING.md) is also available: r4 has
+32 files, a reproducible ZIP, and **791 passing offline tests using the extracted
 integration code**. This package is not a published release or a HACS release
 asset and has not been installed on the real Home Assistant instance.
 

@@ -101,7 +101,7 @@ Protocol code is independent of Home Assistant under
 The adapter, coordinator and entities connect that layer to Home Assistant.
 Tests use fixtures and a simulated BLE peer; they never connect to the cooktop.
 
-The latest local check passed **737 tests with 96% integration-code coverage**,
+The latest local check passed **791 tests with 96% integration-code coverage**,
 using Python 3.14.7 and the actual Home Assistant 2026.9.3 test runtime. Ruff
 passed. Earlier official [hassfest validation](docs/HASSFEST.md), including
 the requirements check, and [GitHub CI](docs/CI.md) also passed.

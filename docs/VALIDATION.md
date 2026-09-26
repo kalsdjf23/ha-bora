@@ -108,10 +108,11 @@ every backend performs and retains that pairing.
 
 ## What the offline tests check
 
-The latest complete local run produced **737 passing tests** and **96% coverage**
-of the integration code (2,303 statements, 90 missed). The previous run had
-720 tests; the 17 additional cases cover RPC error origins, redacted diagnostics,
-and a stream error interrupting another request. The earlier r2
+The latest complete local run produced **791 passing tests** and **96% coverage**
+of the integration code (2,324 statements, 84 missed). The preceding run had
+737 tests. The 54 additional cases cover event namespaces and retention limits,
+attributed unsupported-method responses, interrupted initialization, and closing
+old subscriptions before reinitialization. The earlier r2
 [trial package](PACKAGING.md) predates this runtime change and had 714 tests.
 Testing used Python 3.14.7 and the real Home
 Assistant 2026.9.3 runtime, while the Bluetooth peer remained simulated. The
@@ -146,6 +147,9 @@ The [tests](../tests) cover, among other things:
 - Decodable captured messages and unknown or invalid fields.
 - Request IDs, stream lifecycles, timeouts, broken connections, and late
   callbacks; ordered status updates for concurrent queries and streams.
+- A stream failure interrupting another setup/read does not establish that
+  the interrupted method is unsupported. Reinitialization closes the previous
+  connection before rebuilding subscriptions, excluding old same-path streams.
 - New initial snapshots, subscription recovery, optionally unsupported methods,
   and not replaying control commands after reconnect.
 - Both control options, validation of zones and levels, no fabricated zero
@@ -170,6 +174,10 @@ The [tests](../tests) cover, among other things:
   fabricated zero state.
 - Atomic merging of simple-mode settings and read-only diagnostics, including
   redaction and downloading without new appliance requests.
+- Namespace-specific names for system/user events, unknown numeric types,
+  raw timestamps, duplicate entries and wire order; local retention of at most
+  20 records per list with received/omitted counts even if the peer ignores
+  the requested limit. These checks do not establish time units or live faults.
 - Assist selection without I/O, explicit start, a fresh off-state check,
   rejection of active/bridged zones and differing preset parameters, repeated
   presses without altering a running program, and no replay after reconnect.

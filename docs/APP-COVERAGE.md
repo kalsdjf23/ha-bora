@@ -25,7 +25,7 @@ cooktop control and does not belong in this BLE integration.
 | Bridge zones | Bridge status and codec; the examined app selection retains two zones locally | Establish the actual BLE bridge/unbridge path and firmware behaviour |
 | Filter status | Supported binary replacement alert for known recirculation; raw lifetime and types available | Establish BLE-status unit, reset meaning, and physical alert |
 | Metadata | Model, versions, and redacted diagnostics | Check more models and first Linux pairing |
-| Wi-Fi and events | Optional status/history in diagnostics download | Add only supported information as a normal HA entity |
+| Wi-Fi and events | Optional status/history in diagnostics download; namespace-specific event labels and a local 20-record limit with omission counts | Validate optional reads physically; establish cache freshness before adding a Wi-Fi status entity |
 | Firmware | Version visible; no updater | Do not offer an update workflow as a generic write command |
 
 ## Additional behaviour from the manual

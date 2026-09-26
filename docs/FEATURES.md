@@ -128,9 +128,17 @@ visible separately. These comparisons were tested offline, not on hardware.
 The normally disabled **Refresh diagnostics** button is available with both
 control options disabled. When explicitly pressed, it requests optional Wi-Fi
 status, heartbeat status and period, saved CSF data, and system and user events
-once, with a requested limit of 20 per list. Unsupported methods have a
-separate status; they are not a reason to show fabricated measurements. This
-is not periodic event collection.
+once, with a requested and locally enforced limit of 20 records per event
+list. The report retains wire order and includes `received_count` and
+`omitted_count`. System and user events have separate SDK names alongside
+their raw numeric types and timestamps; unknown types keep their raw values.
+These are historical categories, not current faults. Timestamp units and
+chronological ordering remain unverified. This is not periodic collection.
+
+A method is marked unsupported only for an attributed code-12 response to
+that query. A status-stream error interrupting another request is recorded
+as an error with its original RPC context, without declaring the interrupted
+method unsupported or exposing raw error text.
 
 Home Assistant’s diagnostics download exports only the already present cache;
 downloading itself causes no BLE traffic. Known identifying and secret fields

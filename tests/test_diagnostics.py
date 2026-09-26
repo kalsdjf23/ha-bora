@@ -11,10 +11,10 @@ import pytest
 from test_transport import Factory
 
 from custom_components.bora import diagnostics
-from custom_components.bora.ble import identify
+from custom_components.bora.ble import identify, zone
 from custom_components.bora.ble.diagnostic_client import async_collect
 from custom_components.bora.ble.transport import BrpcConnection, RequestTimeout, RpcError
-from custom_components.bora.ble.wire import blob, string, uint
+from custom_components.bora.ble.wire import Stream, blob, string, uint
 
 
 class Connection:
@@ -55,17 +55,27 @@ async def test_collect_queries_each_optional_read_once_and_decodes_results():
     assert result["wifi_status"]["data"]["connection_status"] == 4
     assert result["heartbeat_status"]["data"]["heartbeat_counter"] == 123
     assert result["heartbeat_period"]["data"] == {"heartbeat_period": 5000}
-    assert result["sys_events"]["data"] == [{"timestamp": 10, "event_type": 33}]
-    assert result["user_events"]["data"] == [{"timestamp": 11, "event_type": 5}]
+    assert result["sys_events"]["data"] == [{
+        "timestamp": 10, "event_type": 33, "event_type_name": "EVENT_TYPE_WIFI_CONNECTED",
+    }]
+    assert result["user_events"]["data"] == [{
+        "timestamp": 11, "event_type": 5, "event_type_name": "EVENT_TYPE_EXTRACTOR_DATA_UPDATE",
+    }]
     assert result["saved_csf"]["data"][0]["csf_index"] == 2
     assert all("/Heartbeat" not in path for path, _body in connection.calls)
 
 
 async def test_unsupported_and_timeout_are_per_query_without_retry_or_fake_values():
     replies = successful_responses()
-    replies[identify.get_wifi_status()[0]] = RpcError(12, b"private appliance details")
+    replies[identify.get_wifi_status()[0]] = RpcError(
+        12, b"private appliance details", request_id=1,
+        path=identify.get_wifi_status()[0], stream=Stream.NONE,
+    )
     replies[identify.get_heartbeat_status()[0]] = RequestTimeout("SSID Private WiFi")
-    replies[identify.get_heartbeat_period()[0]] = RpcError(7, b"private bytes")
+    replies[identify.get_heartbeat_period()[0]] = RpcError(
+        7, b"private bytes", request_id=3,
+        path=identify.get_heartbeat_period()[0], stream=Stream.NONE,
+    )
     replies[identify.list_sys_events()[0]] = TimeoutError("AA:BB:CC:DD:EE:FF")
     connection = Connection(replies)
     result = await async_collect(connection)
@@ -97,6 +107,68 @@ async def test_cancelled_collection_stops_without_further_queries():
     with pytest.raises(asyncio.CancelledError):
         await async_collect(connection)
     assert connection.calls == [identify.get_wifi_status()]
+
+
+async def test_stream_failure_does_not_mark_interrupted_optional_read_unsupported():
+    factory = Factory()
+    connection = BrpcConnection(factory)
+    await connection.connect()
+    peer = factory.peers[0]
+    stream_id = await connection.subscribe(zone.STREAM_PATH, lambda _: None)
+    peer.respond = False
+    peer.request_seen.clear()
+    collecting = asyncio.create_task(async_collect(connection))
+    await peer.request_seen.wait()
+    assert peer.requests[-1].text(2) == identify.get_wifi_status()[0]
+    peer.code = 12
+    peer.reply(stream_id, stream=Stream.CONTINUE, error=b"private appliance error")
+    result = await collecting
+    await connection.disconnect()
+    assert result["wifi_status"] == {
+        "status": "error", "error_type": "RpcError",
+        "rpc_error": {
+            "request_id": stream_id, "path": zone.STREAM_PATH,
+            "code": 12, "stream": "CONTINUE",
+        },
+    }
+    assert all(value["status"] == "error" for value in result.values())
+    assert len(peer.requests) == 2  # One subscription and one optional read; no retry.
+    assert len(factory.peers) == 1
+    assert not connection.connected and not peer.is_connected
+    assert "private appliance error" not in json.dumps(result)
+
+
+async def test_unattributed_error_cannot_establish_optional_method_support():
+    replies = successful_responses()
+    replies[identify.get_wifi_status()[0]] = RpcError(12, b"private error")
+    result = await async_collect(Connection(replies))
+    assert result["wifi_status"] == {
+        "status": "error", "error_type": "RpcError",
+        "rpc_error": {"request_id": None, "path": None, "code": 12, "stream": None},
+    }
+    assert result["saved_csf"]["status"] == "ok"
+
+
+@pytest.mark.parametrize("count", [0, 20, 25])
+async def test_event_history_is_bounded_even_when_peer_ignores_requested_limit(count):
+    replies = successful_responses()
+    # Decreasing timestamps deliberately avoid implying chronological sorting.
+    events = b"".join(blob(1, uint(1, 100 - index) + uint(2, 5)) for index in range(count))
+    replies[identify.list_sys_events()[0]] = events
+    replies[identify.list_user_events()[0]] = events
+    connection = Connection(replies)
+    result = await async_collect(connection)
+    for name in ("sys_events", "user_events"):
+        assert result[name]["received_count"] == count
+        assert result[name]["omitted_count"] == max(0, count - 20)
+        assert [item["timestamp"] for item in result[name]["data"]] == [
+            100 - index for index in range(min(count, 20))
+        ]
+    if count:
+        assert result["sys_events"]["data"][0]["event_type_name"] != (
+            result["user_events"]["data"][0]["event_type_name"]
+        )
+    assert len(connection.calls) == 6
 
 
 class Flag(IntEnum):

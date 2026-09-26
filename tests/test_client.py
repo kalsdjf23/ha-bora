@@ -60,11 +60,12 @@ class Connection:
         self.streams.clear()
 
     async def subscribe(self, path, callback):
+        request_id = len(self.streams) + 1
         if path in self.unsupported:
             await self.disconnect()
-            raise RpcError(12)
+            raise RpcError(12, request_id=request_id, path=path, stream=Stream.START)
         self.streams[path] = callback
-        return len(self.streams)
+        return request_id
 
     async def rpc(self, path, body=b"", *, received=None, failed=None):
         assert self.connected

@@ -30,7 +30,10 @@ async def test_probe_records_sanitized_reads_and_leaves_no_connection():
     assert "AA:BB:CC:DD:EE:FF" not in json.dumps(report)
 
 
-@pytest.mark.parametrize("saved_reply", [POPULATED, b"", RpcError(12)])
+@pytest.mark.parametrize("saved_reply", [
+    POPULATED, b"",
+    RpcError(12, request_id=1, path=identify.get_saved_csf()[0], stream=Stream.NONE),
+])
 async def test_extended_probe_preserves_saved_read_in_report_after_shutdown(saved_reply):
     connection = SavedConnection()
     connection.saved_reply = saved_reply

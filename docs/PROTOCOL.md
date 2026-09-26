@@ -84,6 +84,25 @@ unconfirmed and displays the status actually received. No further write is
 issued. Later streams may show the change; their timing and the behavior of
 physical controls still require testing on the appliance.
 
+## Optional event history
+
+System and user histories have separate `EventType` enums. Static analysis of
+BORA One 1.9.1 established system values 0–99 and user values 0–16. The
+namespace-specific decoders retain `event_type` and `timestamp` and add the
+exact SDK `event_type_name`, or `unknown_<value>` for an unrecognized code.
+The generic decoder remains numeric because it has no namespace context.
+
+For example, system code 5 is `EVENT_TYPE_BLE_SERVER_STARTED`, while user code
+5 is `EVENT_TYPE_EXTRACTOR_DATA_UPDATE`. System code 33 is
+`EVENT_TYPE_WIFI_CONNECTED`. A recorded category does not establish the
+appliance's current state or the cause of a fault. Timestamp units and list
+ordering have not been established.
+
+Explicit diagnostics request 20 entries per history and retain at most 20 in
+wire order even if a peer returns more. Counts show the total received and
+number omitted. The names and retention behavior are tested offline; optional
+history reads still require physical validation on the target appliance.
+
 ## Semantics that are not inferred
 
 - `remainingAfterRun` is proven to use milliseconds. The observed after-run

@@ -2,6 +2,15 @@
 
 ## 0.1.0 — development draft, unreleased
 
+- Attribute unsupported-method fallback to the attempted RPC, so an unrelated
+  status-stream failure cannot silently disable another stream or mislabel an
+  optional diagnostic method as unsupported.
+- Close any old connection before rebuilding subscriptions, preventing an
+  earlier stream for the same path from being confused with a new setup reply.
+- Label system and user event histories using their separate SDK enums, retain
+  raw codes and timestamps, and enforce a 20-record local limit per history
+  with explicit received/omitted counts. No event timestamp units or current
+  fault state are inferred.
 - Independent Home Assistant integration with Bluetooth discovery, explicit
   pairing, configuration options, status streams and periodic reconciliation.
 - Extraction, zones, settings and diagnostics based on the device descriptor.

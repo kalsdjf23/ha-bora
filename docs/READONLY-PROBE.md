@@ -65,6 +65,17 @@ error response. The diagnostics report also retains `last_rpc_error`, the
 last known active RPC error with the same source context. This cache is empty
 after reconnecting; downloading diagnostics makes no new appliance requests.
 
+Optional reads are not labeled unsupported when an unrelated stream error
+interrupts them. Such a result has `status: error` and an `rpc_error` object
+with the original response context. A result with unknown error origin also
+cannot establish lack of method support.
+
+With `--extended`, system and user histories include namespace-specific SDK
+event names alongside raw types and timestamps. Each list retains at most
+20 records in wire order, with `received_count` and `omitted_count`. Names do
+not establish current faults, and no timestamp unit or chronological order
+is assumed. These optional-read changes have offline tests only.
+
 This is a standalone BLE test, not an HA installation or a Bluetooth proxy
 test. The integration separately uses Home Assistant's Bluetooth manager.
 
