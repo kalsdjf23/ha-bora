@@ -66,3 +66,17 @@ of the original error response. Diagnostics export this context without raw
 error text. This is tested offline, including a stream failure that interrupts
 another request. It does not add missing evidence to the previous trial;
 a new physical test is still needed to identify the source of code 12.
+
+## Resumed trial with error attribution
+
+The bounded trial helper now retains the original error path, request ID and
+stream marker, including the connection's last RPC error when a stream failure
+leaves a later operation with only `ConnectionLost`. Offline checks cover a
+successful start/stop, rejected control requests and lost-connection cleanup.
+
+The first physical attempt with this helper ended with `ConnectionLost`
+before the initial status check. Its RPC trace was empty and it recorded no
+RPC error response. No start or stop command was attempted, and the client
+closed. This result does not identify the previous code-12 source or prove
+that standby caused the connection failure. The next trial still requires
+the cooktop to be reachable with all zones and extraction initially at 0.

@@ -55,6 +55,10 @@ The integration requires no cloud account and communicates locally over
 Bluetooth. It uses Home Assistant's Bluetooth infrastructure, allowing different
 adapters in the architecture without claiming that proxy pairing already works.
 
+Automatic wake from standby is not currently supported. The integration can
+reconnect when Bluetooth becomes reachable again; no verified X PURE wake
+command has been found. See [standby and reconnection](docs/STANDBY.md).
+
 ## Enabling controls
 
 Both options are disabled when the integration is added:

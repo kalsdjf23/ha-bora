@@ -16,6 +16,7 @@ cooktop control and does not belong in this BLE integration.
 | Area | Local HA preparation | Work required for the full goal |
 | --- | --- | --- |
 | Status overview | Fan, zones, modes, residual heat, settings, and errors; separate Assist phase, confirmation notice, and known target temperature | Compare active zones and streams physically on HA |
+| Standby and wake | Periodic status reads and reconnect when Bluetooth is reachable; no remote wake action | Distinguish panel-off reachability from later radio unavailability; identify an actual wake path before implementation; see [STANDBY.md](STANDBY.md) |
 | Fan | Power, automatic/boost, after-run, and stop | Associate code 12 from the manual control trial with the exact RPC; check actual acceptance of controls |
 | Cooking zones | Power, heat retention, automatic heat-up, pause, and stopping CSF | Confirm every control path with a user present |
 | Timers | Codecs plus zone-timer duration, remaining time, and active status | Check setter units and actual start/stop operation |
