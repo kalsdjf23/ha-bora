@@ -17,7 +17,7 @@ cooktop control and does not belong in this BLE integration.
 | --- | --- | --- |
 | Status overview | Fan, zones, modes, residual heat, settings, and errors; separate Assist phase, confirmation notice, and known target temperature | Compare active zones and streams physically on HA |
 | Standby and wake | Periodic status reads and reconnect when Bluetooth is reachable; no remote wake action | Distinguish panel-off reachability from later radio unavailability; identify an actual wake path before implementation; see [STANDBY.md](STANDBY.md) |
-| Fan | Power, automatic/boost, after-run, and stop prepared; latest stop-only test attributed code 12 to `SetExtractorMode` for manual 0, with subsequent fan status still 1 | Establish accepted control paths; no successful control proven, older trial origin unresolved, latest manual shutdown confirmation pending; see [hardware checks](HARDWARE-CHECKS.md) |
+| Fan | Power, automatic/boost, after-run, and stop prepared; latest stop-only test attributed code 12 to `SetExtractorMode` for manual 0, with subsequent fan status still 1; user later confirmed manual shutdown | Establish accepted control paths; no successful control proven, older trial origin unresolved; see [fan-control investigation](FAN-CONTROL-INVESTIGATION.md) |
 | Cooking zones | Power, heat retention, automatic heat-up, pause, and stopping CSF | Confirm every control path with a user present |
 | Timers | Codecs plus zone-timer duration, remaining time, and active status | Check setter units and actual start/stop operation |
 | Settings | Locks, signal volume, touch sensitivity, pan detection, operating duration, and simple-mode features | Confirm meaning and support on this model |

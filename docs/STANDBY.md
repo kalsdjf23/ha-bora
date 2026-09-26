@@ -21,6 +21,32 @@ main-power indicator. The observation does not establish a fixed sleep timer
 or continuous standby reachability. “Deep standby” here describes a working
 hypothesis, not a separately verified firmware state.
 
+## Repeated observation on 26 September 2026
+
+A new supervised trial separated after-run from the fully stopped state.
+The user corrected an initial all-off report because extraction was still
+running, then confirmed stopping after-run with the panel off and the phone
+app closed. That corrected confirmation was recorded by 07:37:58 UTC.
+The preceding fan-level-1 readings must not be treated as confirmed silent
+standby or evidence of a stale value.
+
+The research client was disconnected throughout the discovery phase. Its
+20-second discovery windows, separated by 10 seconds, last saw X PURE in
+the window ending at 07:38:41 UTC. The next two windows, ending at 07:39:11
+and 07:39:41 UTC, found no X PURE but did find 17 and 18 nearby devices.
+The scanner then stopped. These samples establish a repeated loss of local
+visibility after shutdown, not its exact instant, a fixed sleep delay, or a
+particular firmware power state.
+
+With the scanner stopped, the official BORA One app on the paired Mac was
+initially visibly disconnected. One Connect attempt remained on
+`connecting` / `Stay close to your BORA appliance` for approximately one
+minute and produced no fresh status screen. The attempt was cancelled with
+Disconnect; the app returned to `not connected`. No fan or heating action
+was requested. This trial did not demonstrate an official-app wake path
+on the Mac. It does not establish the result on an iPhone or exclude an
+unexamined cloud transport.
+
 ## Official and static evidence
 
 The [official X Pure manual, version 03](https://www.bora.com/product-documentation/operating-and-installation-instructions/umim-xpure-en.pdf)
@@ -69,13 +95,14 @@ working Bluetooth connection. No heartbeat configuration, connectivity
 restart, guessed wake command, or heating/extraction command is used to
 keep the appliance awake.
 
-A useful next supervised test should keep all zones and extraction off,
-record the panel state and time, and compare Bluetooth availability before
-and after panel-off. Once ordinary reconnect fails, release the integration's
-connection and check whether the official app can obtain **fresh** status
-without touching the panel. Stop if it requests a control action. Then
-compare with manual panel-on. Use one client at a time and distinguish a
-cached app screen from an actual response.
+The repeated observation above performed the discovery and official Mac-app
+comparison with the panel left off. A remaining discriminator is the
+official iPhone app with phone Bluetooth disabled and Wi-Fi left enabled,
+without changing the appliance's network configuration. It must obtain
+**fresh** status or independently corroborated wake to establish an
+alternative transport; a cached app screen is insufficient. Compare any
+success with ordinary Bluetooth availability and manual panel-on, using
+one client at a time.
 
 If the app succeeds, identify its transport and exact request before adding
 a wake action. If it also requires panel-on, the currently supported recovery

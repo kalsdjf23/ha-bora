@@ -5,8 +5,8 @@ tested offline. This integration has not yet been physically validated on Home
 Assistant, Linux, or a Bluetooth proxy, and its control commands have not been
 physically validated successfully. The latest stop-only trial attributed code
 12 directly to `SetExtractorMode` for manual level 0; subsequent independent
-reads still showed fan 1 and all four zones 0. Manual shutdown confirmation
-is pending in this record. See [the hardware checks](HARDWARE-CHECKS.md).
+reads still showed fan 1 and all four zones 0. The user subsequently confirmed
+manual shutdown, including after-run. See [the hardware checks](HARDWARE-CHECKS.md).
 
 ## Different kinds of evidence
 
@@ -59,7 +59,7 @@ at 0 and sent exactly one `SetExtractorMode` request for manual level 0, body
 and stream marker `NONE`. No ON request or readback occurred in the failed
 setter phase, and the connection closed. A separate read-only session then
 completed two full rounds showing fan 1 and zones 0 before closing. The user
-was asked to stop the fan manually; no confirmation has been recorded yet.
+subsequently confirmed stopping the fan and its after-run manually.
 This establishes a rejected setter for this run, not universal write failure.
 
 Earlier [idle and fan-control trials](HARDWARE-CHECKS.md) used the protocol

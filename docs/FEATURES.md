@@ -31,7 +31,8 @@ corresponding command. Current physical evidence is in
 The latest stop-only trial returned code 12 directly from `SetExtractorMode`
 requesting manual level 0. The user had manually set the fan to 1, and two
 separate status rounds after the failed command still showed fan 1 and all
-zones 0. Manual shutdown confirmation remains pending in this record.
+zones 0. The user subsequently confirmed stopping extraction and after-run
+manually; no remote stop was established.
 
 The older 0 → 1 → 0 trial also ended with code 12 in both control phases, but
 its error origin remains unresolved. No successful control is proven; the
@@ -153,7 +154,7 @@ once on the previously paired Mac and X PURE PUXU2R, BLE firmware 3.0.9:
 
 The probe completed with 26 trace rows and none omitted, then closed its
 connection. It sent no controls. Final status remained zones 0 and fan 1;
-manual shutdown confirmation is pending in this record. These results prove
+the user subsequently confirmed manual shutdown. These results prove
 the stated reads and error handling on that Mac/appliance combination, not
 physical HA entity or proxy behavior. See [the hardware
 checks](HARDWARE-CHECKS.md).

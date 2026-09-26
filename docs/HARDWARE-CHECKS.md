@@ -68,11 +68,22 @@ that every write is unsupported.
 
 A separate read-only connection completed two full status rounds at
 07:07:03 and 07:07:08 UTC. Both still reported fan level 1 and all four zones
-at 0. It closed at 07:07:10 UTC. The user was asked to stop the fan manually;
-that confirmation is pending in this record. **Fan-off is not confirmed.**
-No successful control action is established by these checks.
+at 0. It closed at 07:07:10 UTC. The user subsequently confirmed manually
+stopping extraction, including after-run, with the panel off. This is a
+physical user confirmation, not evidence of a successful remote stop.
 
-The official app was subsequently connected for a status-screen inspection.
+An initial all-off report was corrected by the user because after-run was
+still active. Reads at 07:34:23 and 07:34:30 UTC had returned fan level 1 and
+an empty zone collection; they must not be labelled confirmed silent standby
+or evidence of stale fan status. The corrected all-off confirmation was
+recorded by 07:37:58 UTC for the subsequent discovery-only standby test.
+No successful control action is established by these checks.
+The [standby record](STANDBY.md) describes the subsequent disappearance from
+two discovery windows and the unsuccessful bounded official Mac-app
+connection attempt.
+
+Before the manual shutdown above, the official app was connected for a
+status-screen inspection.
 It also displayed fan level 1 and four zone-zero indicators. The inspected
 screen exposed the central fan value as an image in its status overview; no
 manual fan-level control was identified there. This does not establish that
@@ -83,7 +94,9 @@ A further static check confirmed the generic setter's path and body but
 found no evidenced alternative X PURE route. A separately named extractor
 protocol family in the SDK is insufficient reason to send its commands to
 this appliance. The next step is to identify a real X PURE app control and
-its caller path, if present, before another control experiment.
+its caller path, if present, before another control experiment. The expanded
+[fan-control investigation](FAN-CONTROL-INVESTIGATION.md) documents the
+positively identified product route and the request-envelope check.
 
 ## Reading idle status
 

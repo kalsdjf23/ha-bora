@@ -25,8 +25,8 @@ This establishes a successful physical read and one concrete empty-favorites
 case. It does not validate populated favorites, save/start behavior,
 preservation of omitted slots during writes, or the HA entities on a real HA
 adapter/proxy. The probe sent no controls; its final status still showed all
-zones at 0 and the fan at 1 before the connection closed. Manual fan-off
-confirmation remains pending in this record. See [the hardware
+zones at 0 and the fan at 1 before the connection closed. The user
+subsequently confirmed stopping extraction and after-run manually. See [the hardware
 checks](HARDWARE-CHECKS.md).
 
 ## Meaning of the display
