@@ -16,7 +16,7 @@ groep is geen lokale kookplaatbediening en hoort niet bij deze BLE-integratie.
 | Gebied | Lokale HA-voorbereiding | Werk tot het volledige doel |
 | --- | --- | --- |
 | Statusoverzicht | Afzuiging, zones, modi, restwarmte, instellingen en fouten; aparte Assist-fase, bevestigingsmelding en bekende doeltemperatuur | Actieve zones en streams op HA fysiek vergelijken |
-| Afzuiging | Vermogen, automatisch/boost, naloop en stoppen | Descriptorwaarden en werkelijke eindtoestand controleren |
+| Afzuiging | Vermogen, automatisch/boost, naloop en stoppen | Code 12 uit de handmatige bedieningsproef aan de exacte RPC koppelen; werkelijke acceptatie van bediening controleren |
 | Kookzones | Vermogen, warmhouden, aankookautomaat, pauze en CSF stoppen | Elke bedieningsroute met aanwezige gebruiker bevestigen |
 | Timers | Codecs plus zonetimerduur, resterende tijd en actief-status | Settereenheden en werkelijke start/stopwerking controleren |
 | Instellingen | Sloten, signaalvolume, aanraking, pandetectie, bedrijfsduur en simple-mode-functies | Betekenis en ondersteuning op dit model bevestigen |

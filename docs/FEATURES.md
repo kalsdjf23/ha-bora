@@ -25,6 +25,12 @@ opdracht accepteert. De huidige fysieke onderbouwing staat in
 
 ## Afzuiging
 
+De fysieke proef voor handmatig 0 → 1 → 0 bevestigde geen geslaagde bediening:
+beide bedieningsfases eindigden met code 12. Het log koppelt de fout nog niet
+aan de schrijfopdracht of een daaropvolgende statusvraag. De onderstaande
+bedieningen zijn dus implementatievoorbereiding, geen bewezen apparaatfuncties.
+Zie [het hardwareverslag](HARDWARE-CHECKS.md). Uitlezen van standen werkte wel.
+
 | Entiteit of functie | Voorwaarden en gedrag |
 | --- | --- |
 | Vermogen en modus | Monitoring; stand met label uit de descriptor. |

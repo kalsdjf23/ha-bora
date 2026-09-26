@@ -2,8 +2,8 @@
 
 Stand van de lokale voorbereiding: 26 september 2026. De huidige HA-code is
 offline getest. Er is nog geen fysieke validatie van deze integratie op Home
-Assistant, Linux of een Bluetooth-proxy en geen fysieke validatie van de
-bedieningsopdrachten.
+Assistant, Linux of een Bluetooth-proxy en geen geslaagde fysieke validatie
+van de bedieningsopdrachten. Een afzuigproef gaf code 12; zie hieronder.
 
 ## Verschillende soorten bewijs
 
@@ -19,9 +19,9 @@ bedieningsopdrachten.
 
 Onderzoeksapparaat: BORA X PURE PUXU2R, BLE-firmware 3.0.9. De Mac was eerder
 gekoppeld. Daarna zijn zelfstandige statusvragen en
-statusabonnementen getest, met de officiële app losgekoppeld. De gebruiker
-veranderde de apparaatstanden zelf; de onderzoeksclient stuurde geen
-opdrachten om verwarming of afzuiging te starten.
+statusabonnementen getest, met de officiële app losgekoppeld. Bij de
+onderstaande eerste opnames veranderde de gebruiker de apparaatstanden zelf;
+de onderzoeksclient stuurde daarbij geen startopdrachten.
 
 - Afzuigstanden zijn zowel opgevraagd als via een statusstream gevolgd, met
   handmatig bevestigde standen 3 en 5. Een reeks losse vragen kreeg afzonderlijke antwoorden.
@@ -44,7 +44,14 @@ meegelezen. Linksachter 7 en afzuiging 3 zijn door de gebruiker bevestigd;
 de overgang naar zone 0 en naloop 30 minuten is ontvangen. De opname bevat
 93 CRC-geldige responses en legde een fout bij tijdelijk onbeschikbare
 zonestatus bloot. De daaruit volgende correctie is offline getest, maar nog
-niet opnieuw fysiek beproefd. Zie [de kookmeting](COOKING-OBSERVATION.md).
+niet met een nieuwe code-14-waarneming beproefd. Zie [de kookmeting](COOKING-OBSERVATION.md).
+
+Een latere [rustproef en afzuigproef](HARDWARE-CHECKS.md) gebruikten de huidige
+protocolclient. Normale statusuitlezing, verzoekregistratie en streamafsluiting
+slaagden. De handmatige afzuigproef gaf in beide bedieningsfases code 12;
+welke schrijf- of teruglees-RPC dit veroorzaakte is nog niet direct gelogd.
+Er is daardoor geen geslaagde bediening bewezen. Een afzonderlijke uitlezing
+bevestigde daarna alle vier zones en de afzuiging op 0.
 
 De oorspronkelijke onderzoeksnotities en privéopnamen blijven in een
 afzonderlijk lokaal onderzoeksarchief. Dat archief en de officiële appbinary

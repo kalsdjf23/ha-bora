@@ -32,6 +32,11 @@
   teruggelezen status, zonder automatisch herhalen bij een afwijking.
 - Gesaniteerde meetfixtures, offline tests, HA-runtime-tests en voorbereide
   Hassfest/HACS-workflows.
+- Eerste private GitHub-versie met geslaagde Linux-CI (720 tests, Ruff,
+  dependencycontrole en officiële hassfest). HACS-validatie blijft uitgesteld.
+- Fysieke rustproef van de rapportworkflow geslaagd. Een aparte afzuigproef
+  gaf code 12 en bevestigde geen bediening; afzonderlijk uitlezen bevestigde
+  daarna afzuiging en alle zones op 0. Exacte mislukte RPC nog te bepalen.
 
 Deze versie wordt voorbereid in een privérepository en is niet openbaar
 uitgebracht of op de Home Assistant van de

@@ -19,6 +19,11 @@ afzuigstanden en het begin van de naloop. De gevonden uitval bij een tijdelijk
 onbeschikbare zone is vervolgens offline verholpen; die correctie moet nog
 op het apparaat worden herhaald.
 
+Een afzonderlijke [afzuigproef](docs/HARDWARE-CHECKS.md) leverde code 12
+(`UNIMPLEMENTED`) op en bevestigde geen werkende bediening. Het proeflog
+onderscheidt de mislukte schrijfopdracht nog niet van het teruglezen erna.
+Afzuigbediening blijft daarom experimenteel; statusuitlezing werkte wel.
+
 ## Wat is voorbereid?
 
 - Afzuigstand, automatische stand, expliciete boostpreset, nalooptijd en naloop stoppen.
