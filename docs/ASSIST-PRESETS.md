@@ -1,115 +1,115 @@
-# Vier voorbereide X PURE Assist-programma's
+# Four prepared X PURE Assist programs
 
-De integratie bevat nu een vaste selectie van vier programma's uit de
-[openbare BORA-catalogus](https://boraone-backend.k8s-prd.cloud.bora.com/v1/automatic-programs?pimProductId=61596&page=1&pageSize=20).
-Die leesvraag gaf op 25 september 2026 HTTP 200 zonder account, cookies of
-authenticatieheader. Dit was een catalogusvraag, geen apparaatbediening.
-De integratie gebruikt de vastgelegde metadata lokaal en doet zelf geen
-catalogus- of accountverzoeken.
+The integration now includes a fixed selection of four programs from the
+[public BORA catalogue](https://boraone-backend.k8s-prd.cloud.bora.com/v1/automatic-programs?pimProductId=61596&page=1&pageSize=20).
+That read request returned HTTP 200 on 25 September 2026 without an account,
+cookies or an authentication header. It was a catalogue request, not an
+appliance control operation. The integration uses the captured metadata
+locally and makes no catalogue or account requests itself.
 
-| Programma | Catalogus-ID | Standaarddoelwaarde |
+| Program | Catalogue ID | Default target |
 | --- | --- | --- |
 | Cook egg dishes | 62176 | 135 °C |
 | Fry potato dishes | 62954 | 205 °C |
 | Fry pancakes | 63120 | 180 °C |
 | Fry breaded foods | 63121 | 170 °C |
 
-Deze waarden zijn programma-instellingen, geen gemeten pantemperaturen.
-Alle vier gebruiken FRYING. Ze hebben catalogusgrenzen 120–220 °C; de eerste
-twee hebben stapwaarde 15 en de laatste twee 10. De integratie kopieert geen
-receptinstructies of afbeeldingen. De noodzakelijke feiten staan in een
-[geschoonde fixture](../tests/fixtures/x_pure_catalogue_2026_09_25.json).
+These values are program settings, not measured pan temperatures. All four
+use FRYING. Their catalogue limits are 120–220 °C; the first two have a step
+value of 15 and the last two 10. The integration does not copy recipe
+instructions or images. The necessary facts are recorded in a
+[sanitized fixture](../tests/fixtures/x_pure_catalogue_2026_09_25.json).
 
-## Voorbereide bediening in Home Assistant
+## Prepared controls in Home Assistant
 
-Deze bediening is uitsluitend in simulatie getest. De eerste fysieke proef
-met de HA-adapter en de kookplaat moet nog plaatsvinden.
+These controls have only been tested in simulation. The first physical test
+with the HA adapter and cooktop has yet to take place.
 
-1. Schakel zowel algemene bediening als kookbediening in de integratieopties in.
-2. Kies bij de gewenste zone een **Assist to start**. Die keuze blijft lokaal;
-   kiezen verstuurt geen apparaatopdracht. Er is geen standaardselectie en een
-   herladen integratie begint weer zonder selectie.
-3. Druk expliciet op **Start Assist**. De zone moet een bekende uitstand hebben
-   en ongekoppeld zijn. De client leest dit opnieuw voordat hij de opdracht verstuurt.
-4. Volg de fysieke Assist-bevestiging op de kookplaat. De integratie slaat die
-   stap niet over en zet een ontvangen bevestigingsfase niet zelf door.
+1. Enable both general controls and cooking controls in the integration options.
+2. Choose an **Assist to start** for the desired zone. This selection remains
+   local; choosing it sends no appliance command. There is no default selection,
+   and reloading the integration clears the selection.
+3. Explicitly press **Start Assist**. The zone must have a known off state and
+   be unbridged. The client reads this again before sending the command.
+4. Complete the physical Assist confirmation on the cooktop. The integration
+   does not skip this step or advance a reported confirmation phase itself.
 
-Een bestaande actieve zone of kookfunctie wordt via deze startknop niet
-gewijzigd. De gewone programmastatus blijft de werkelijk ontvangen fase tonen.
-De bestaande knop om een kookprogramma te stoppen blijft afzonderlijk
-beschikbaar. Deze presets voegen geen automatische stop na een gekozen tijd
-toe; de HA-start gebruikt de standaardwaarden van het gevonden apppad.
+This start button does not modify an existing active zone or cooking function.
+The ordinary program status continues to show the phase actually received.
+The existing button to stop a cooking program remains available separately.
+These presets do not add an automatic stop after a chosen duration; the HA
+start uses the default values from the identified app path.
 
-De sensoren **Cooking program phase** en **Assist confirmation required**
-volgen de ontvangen apparaatstatus. De eerste toont ook `inactive` als een
-bekende andere zonemodus actief is. Een onbekende fase geeft geen valse
-melding dat bevestiging niet meer nodig is. De temperatuur van **Assist
-target temperature** is uitsluitend de gerapporteerde instelling van een
-herkenbaar programma; het is geen gemeten pantemperatuur. Een lokale andere
-keuze verandert deze sensoren niet. Zonder herkenbaar programma of geldige
-doelwaarde verschijnt geen temperatuur.
+The **Cooking program phase** and **Assist confirmation required** sensors
+follow the reported appliance status. The first also shows `inactive` when
+a known other zone mode is active. An unknown phase does not falsely report
+that confirmation is no longer required. **Assist target temperature** is
+only the reported setting of a recognizable program, not a measured pan
+temperature. Making a different local selection does not change these
+sensors. No temperature is displayed without a recognizable program and
+a valid target value.
 
-## Onderbouwing van de bijzondere waarden
+## Evidence for the exceptional values
 
-De app haalt deze records op met een vaste productfilter `61596` en gebruikt
-het numerieke catalogus-ID rechtstreeks als `csfId`. De productiecaller schrijft
-bij een nieuwe start `csfIndex=0`, ook al noemt de apparaatdescriptor voor zijn
-indexrange 1–5. De startcode neemt hier de aantoonbare appwaarde over en verandert
-die niet in een opgeslagen-programmaslot.
+The app retrieves these records with a fixed product filter of `61596` and
+uses the numeric catalogue ID directly as `csfId`. For a new start, the
+production caller writes `csfIndex=0`, even though the appliance descriptor
+lists an index range of 1–5. The start code follows this established app value
+instead of changing it to a saved-program slot.
 
-Deze vier records hebben geen afzonderlijke timerstap of sliderconfiguratie.
-Ontbrekende uur/minuut/secondevelden worden null en daarna nul seconden. De
-mapper verbergt het timerscherm; de start-VM begint eveneens met nul seconden
-en schrijft die via zijn millisecondenconversie als `csfTimerDuration=0`.
-Dit is een concrete appstartuitzondering voor deze vier records, geen algemene
-betekenis van timerwaarde nul. De ruwe CSF-timergrens 10.000–7.250.000 uit de
-opname wordt hierdoor niet hernoemd of gewijzigd.
+These four records have no separate timer step or slider configuration.
+Missing hour/minute/second fields become null and then zero seconds. The
+mapper hides the timer screen; the start VM also begins with zero seconds
+and writes it through its millisecond conversion as `csfTimerDuration=0`.
+This is a specific app-start exception for these four records, not a general
+meaning of a zero timer value. It does not rename or change the raw CSF timer
+limits of 10,000–7,250,000 in the recording.
 
-`csfSettings=0` volgt uit de productieconversie `!cooktopTimer`, met
-`cooktopTimer=true` in alle vier records. De andere catalogusvlag
-`userTimerstart` is een apart veld en is niet de bron van deze bitwaarde.
-Bij één geselecteerde zone behoudt de startcaller FRYING; hij verandert dat
-pas bij twee geselecteerde zones in GRILL. Deze voorbereiding biedt alleen
-de enkele zone aan, zonder een bridge- of unbridgeopdracht.
+`csfSettings=0` follows from the production conversion `!cooktopTimer`, with
+`cooktopTimer=true` in all four records. The other catalogue flag,
+`userTimerstart`, is a separate field and is not the source of this bit value.
+With one selected zone, the start caller retains FRYING; it changes this to
+GRILL only when two zones are selected. This preparation offers only a single
+zone, without a bridge or unbridge command.
 
-De opgenomen X PURE meldt FRYING voor alle vier zones, doelgrenzen 120–240
-en stapgrenzen 1–120. De code controleert de gekozen zone, het producttype en
-de volledige receptgrenzen opnieuw. Hij legt geen verzonnen stapraster op:
-de echte cataloguswaarde 205 past immers niet in `120 + n × 15`.
+The recorded X PURE reports FRYING for all four zones, target limits of
+120–240 and step limits of 1–120. The code rechecks the selected zone, product
+type and complete recipe limits. It does not impose an invented step grid:
+the actual catalogue value 205 does not fit `120 + n × 15`.
 
-## Grenzen van de implementatie
+## Implementation limits
 
-De runtime accepteert alleen de exacte standaardstart van deze vier records,
-op X PURE-producttype 2 met passende capabilities. Een andere temperatuur,
-duur, index, bitwaarde, recept-ID of programmavariant wordt geweigerd. De
-aanwezigheid van een lage-niveau encoder is geen generieke HA-startservice.
+The runtime accepts only the exact default start for these four records,
+on X PURE product type 2 with matching capabilities. A different temperature,
+duration, index, bit value, recipe ID or program variant is rejected. The
+presence of a low-level encoder does not provide a generic HA start service.
 
-Voor en na de enkele schrijfopdracht worden de statussen gelezen. Alleen een
-passend CSF-bericht in fase preheat, confirmation-required of active bevestigt
-dat het programma wordt gerapporteerd. Dit bewijst geen bereikte temperatuur,
-afgeronde fysieke bevestiging of voltooid kookproces. Bij een ontbrekende of
-afwijkende teruglezing volgt een melding; de opdracht wordt niet herhaald.
-Verbindingsherstel verstuurt evenmin een start uit de lokale selectie.
+Statuses are read before and after the single write. Only a matching CSF
+message in phase preheat, confirmation-required or active confirms that the
+program is being reported. This does not prove that a temperature has been
+reached, physical confirmation has been completed or cooking has finished.
+Missing or differing readback produces a notification; the command is not
+repeated. Reconnection also does not send a start from the local selection.
 
-Een zone wordt al vóór het wachten op andere Bluetooth-operaties voor deze
-start gereserveerd. Een gelijktijdige tweede start wordt geweigerd en niet
-als latere opdracht bewaard. Vanaf het verzendmoment blijft een onzekere
-start bovendien geblokkeerd na een fout, annulering of opnieuw verbinden.
-Alleen een later ontvangen CSF-status met de bijbehorende parameters en fase
-preheat, confirmation-required of active heft die onzekerheid op; de gewone
-controle tegen het wijzigen van een actief programma blijft dan gelden.
+A zone is reserved for this start before waiting for other Bluetooth
+operations. A concurrent second start is rejected rather than queued for
+later. From the moment of transmission, an uncertain start also remains
+blocked after an error, cancellation or reconnection. Only a later CSF status
+with the corresponding parameters and phase preheat, confirmation-required
+or active resolves that uncertainty; the ordinary guard against modifying
+an active program still applies.
 
-Een teruggelezen uitstand bewijst niet dat een vertraagde start nooit meer
-wordt toegepast. Daarom heft die uitstand de blokkade niet op. Als de eerste
-opdracht werkelijk niet is toegepast, kan de zone tijdens deze clientinstantie
-geblokkeerd blijven voor nieuwe Assist-starts. Deze bewaking is niet persistent
-over het herladen van de integratie of een HA-herstart; herladen is geen
-bevestiging van de apparaatstatus. Controleer na een onzekere start altijd
-de kookplaat voordat opnieuw starten wordt overwogen.
+A reported off state does not prove that a delayed start can never be
+applied. It therefore does not clear the block. If the first command was
+never applied, the zone may remain blocked from new Assist starts for the
+lifetime of this client instance. This guard does not persist across an
+integration reload or HA restart; reloading does not confirm the appliance's
+state. Always check the cooktop after an uncertain start before considering
+another start.
 
-Opgeslagen Assists, eigen parameters, andere CSF-types, wijzigen tijdens een
-actief programma en de bridgeworkflow blijven afzonderlijk onderzoek. De
-opslag-/startafwijking uit [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md) wordt hier
-vermeden door concrete catalogusgegevens te gebruiken, niet door opgeslagen
-parameters opnieuw te verzenden. Geen van deze vier starts is tijdens deze
-voorbereiding op de echte kookplaat uitgevoerd.
+Saved Assists, custom parameters, other CSF types, modification during an
+active program and the bridge workflow remain separate research topics.
+The save/start discrepancy in [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md) is avoided
+here by using specific catalogue data, not by resending saved parameters.
+None of these four starts was executed on the actual cooktop during this
+preparation.

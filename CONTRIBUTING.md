@@ -1,8 +1,12 @@
-# Bijdragen
+# Contributing
 
-Dit is voorlopig een privéontwikkelproject op GitHub. Openbare publicatie en
-releases volgen pas na een aparte opdracht. Gebruik Python 3.14; de vastgezette testomgeving gebruikt
+This is an experimental development project on GitHub. Releases and HACS
+submission remain deferred. Use Python 3.14; the pinned test environment uses
 Home Assistant 2026.9.3.
+
+Use English for documentation, source identifiers, comments, docstrings,
+error messages, interface text, commits and GitHub titles/descriptions.
+Keep protocol identifiers and original recorded evidence unchanged.
 
 ```sh
 python3.14 -m venv .venv
@@ -12,27 +16,27 @@ ruff check .
 pytest -q --cov=custom_components.bora --cov-report=term-missing
 ```
 
-De tests gebruiken geselecteerde opnames en gesimuleerde BLE-verbindingen.
-Ze maken geen verbinding met een kookplaat. Houd nieuwe tests eveneens
-vrij van echte hardware, adapters en productie-Home Assistant.
+Tests use selected recordings and simulated BLE connections. They do not
+connect to a cooktop. Keep new tests independent of real hardware, adapters
+and production Home Assistant installations as well.
 
-Protocolcode staat onder `custom_components/bora/ble/` en importeert Home
-Assistant niet. Bewaar Protobuf-aanwezigheid, descriptorlimieten en onbekende
-waarden; behandel afwezige status nooit als bevestigde uitstand. Een
-bedieningsopdracht mag niet automatisch worden herhaald, ook niet na timeout.
+Protocol code lives under `custom_components/bora/ble/` and does not import
+Home Assistant. Preserve Protobuf field presence, descriptor limits and
+unknown values; missing status must never mean a confirmed off state.
+Control commands must not be automatically repeated, including after a timeout.
 
-Documenteer bij elke nieuwe functie afzonderlijk:
+For each new feature, document these separately:
 
-1. Het bronbewijs voor pad, berichtstructuur en eenheden.
-2. De door het concrete apparaat geadverteerde mogelijkheden.
-3. De geslaagde offline tests en eventueel uitgevoerde fysieke proef.
+1. Source evidence for its path, message structure and units.
+2. Capabilities advertised by the specific device.
+3. Passing offline tests and any physical trial that was performed.
 
-Een fysieke bedieningsproef vereist een aanwezige gebruiker en een vooraf
-begrensd testscenario met controle van de eindtoestand. Laat geen onderzoek-
-client of onbegrensde observatie achter. Firmware, reset- en dealeracties
-horen niet bij gewone HA-bediening.
+A physical control trial requires a present user and an agreed, bounded
+scenario with verification of the final state. Do not leave a research
+client or unbounded observation running. Firmware, reset and dealer actions
+are outside ordinary Home Assistant controls.
 
-Voeg geen officiële appbestanden, toegangstokens, serienummers, SSID's,
-hostspecifieke Bluetooth-ID's of ruwe privéscans toe. Gebruik gecachete,
-geredigeerde HA-diagnostiek bij een later probleemrapport; kijk de export
-zelf na voordat je die openbaar deelt.
+Do not add official application files, access tokens, serial numbers, SSIDs,
+host-specific Bluetooth identities or raw private scans. Use cached, redacted
+Home Assistant diagnostics for a future issue report, and review the export
+before sharing it publicly.

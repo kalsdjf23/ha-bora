@@ -161,6 +161,7 @@ async def async_get_config_entry_diagnostics(
         name: getattr(device, name, None)
         for name in ("information", "descriptor", "snapshot", "diagnostic_snapshot")
     }
+    data["last_rpc_error"] = getattr(getattr(device, "connection", None), "last_rpc_error", None)
     secrets: set[str] = set()
     _collect_secrets(data, secrets)
     # Config is not exported, but its address/identifier can occur as a map key

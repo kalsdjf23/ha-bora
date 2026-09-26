@@ -8,11 +8,12 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from test_transport import Factory
 
 from custom_components.bora import diagnostics
 from custom_components.bora.ble import identify
 from custom_components.bora.ble.diagnostic_client import async_collect
-from custom_components.bora.ble.transport import RequestTimeout, RpcError
+from custom_components.bora.ble.transport import BrpcConnection, RequestTimeout, RpcError
 from custom_components.bora.ble.wire import blob, string, uint
 
 
@@ -235,6 +236,7 @@ async def test_string_zero_identifier_still_redacts_aliases():
 async def test_unloaded_entry_and_recursive_data_remain_json_safe():
     assert await diagnostics.async_get_config_entry_diagnostics(None, SimpleNamespace()) == {
         "information": None, "descriptor": None, "snapshot": None, "diagnostic_snapshot": None,
+        "last_rpc_error": None,
     }
     cycle = {}
     cycle["cycle"] = cycle
@@ -254,3 +256,37 @@ async def test_identifier_map_keys_and_short_ssid_are_redacted_in_aliases():
     assert result["diagnostic_snapshot"]["alias"] == f"network {diagnostics.REDACTED}"
     assert result["diagnostic_snapshot"]["copy"] == diagnostics.REDACTED
     assert "DEVICE_MAP_SECRET" not in json.dumps(result)
+
+
+async def test_cached_rpc_error_is_redacted_without_new_device_requests():
+    factory = Factory()
+    connection = BrpcConnection(factory)
+    await connection.connect()
+    peer = factory.peers[0]
+    peer.respond = False
+    path = "/fixture/AA:BB:CC:DD:EE:FF/PRIVATE_DEVICE_ID/GetStatus"
+    waiting = asyncio.create_task(connection.rpc(path))
+    await peer.request_seen.wait()
+    peer.code = 12
+    peer.reply(peer.requests[-1].uint(3), error=b"private raw appliance details")
+    with pytest.raises(RpcError):
+        await waiting
+    await connection.disconnect()
+    connection.rpc = AsyncMock()
+    device = SimpleNamespace(
+        connection=connection, information={"identifier": "PRIVATE_DEVICE_ID"},
+    )
+    entry = SimpleNamespace(
+        data={"address": "AA:BB:CC:DD:EE:FF"},
+        runtime_data=SimpleNamespace(device=device),
+    )
+    result = await diagnostics.async_get_config_entry_diagnostics(None, entry)
+    assert result["last_rpc_error"] == {
+        "request_id": 1,
+        "path": f"/fixture/{diagnostics.REDACTED}/{diagnostics.REDACTED}/GetStatus",
+        "code": 12,
+        "stream": "NONE",
+    }
+    assert "private raw appliance details" not in json.dumps(result)
+    assert connection.last_rpc_error["path"] == path
+    connection.rpc.assert_not_awaited()

@@ -1,43 +1,47 @@
 # Changelog
 
-## 0.1.0 — privéconcept, niet uitgebracht
+## 0.1.0 — development draft, unreleased
 
-- Zelfstandige Home Assistant-integratie met Bluetooth-discovery, expliciete
-  pairing, configuratieopties, statusstreams en periodieke controle.
-- Afzuiging, kookzones, instellingen en diagnostiek gebaseerd op de
-  apparaatdescriptor. Bediening standaard uit; koken vereist een extra optie.
-- Eigen BRPC-codecs, checksums, fragmentatie, begrensde RPC's en herstel zonder
-  herhalen van bedieningsopdrachten.
-- Zonestatus-timers in seconden, onderbouwd door appgebruikscode; timerbediening
-  en opgeslagen-programmahergebruik blijven apart te valideren.
-- Vier concrete X PURE Assist-programma's uit de anoniem leesbare catalogus;
-  lokale keuze, aparte startknop, exacte standaardparameters en verse controle
-  op een uitgeschakelde, ongekoppelde zone. Geen fysieke proef uitgevoerd.
-- Aparte Assist-fase, bevestigingsmelding en ontvangen doeltemperatuur van
-  herkenbare programma's, onafhankelijk van de lokale keuze.
-- Onderbouwde filtervervangmelding bij bekende recirculatie; geen verzonnen
-  uren, percentage of resetfunctie.
-- Expliciet uitlezen van opgeslagen Assist-favorieten, met plaatsnummers,
-  herkende titels en leesdatum; cache vervalt bij fout of verbindingsverlies.
-- Begrensde ontwikkelprobe met alleen leesmethoden en geredigeerde uitvoer.
-- Begrensde verzoekregistratie koppelt fouten aan de juiste RPC en zone en
-  bewaart streamafsluiting zonder ruwe foutteksten.
-- Diagnoseverslag behoudt gelezen favorieten na afsluiten; anonimisering van
-  ontbrekende numerieke identifiers wist geen gewone nulwaarden uit de status.
-- Expliciete connect/disconnectdeadlines en gecontroleerde reauth-identiteit.
-- Live kookmeting met bevestigde zone-/afzuigstanden en naloop. Daaruit volgde
-  isolatie van tijdelijk ontbrekende zonestatus, correcte fout-/streamvolgorde
-  en weigering van wachtende opdrachten naar onbeschikbare zones; offline getest.
-- Centrale kookbedieningsgrenzen en vergelijking van gevraagde waarden met de
-  teruggelezen status, zonder automatisch herhalen bij een afwijking.
-- Gesaniteerde meetfixtures, offline tests, HA-runtime-tests en voorbereide
-  Hassfest/HACS-workflows.
-- Eerste private GitHub-versie met geslaagde Linux-CI (720 tests, Ruff,
-  dependencycontrole en officiële hassfest). HACS-validatie blijft uitgesteld.
-- Fysieke rustproef van de rapportworkflow geslaagd. Een aparte afzuigproef
-  gaf code 12 en bevestigde geen bediening; afzonderlijk uitlezen bevestigde
-  daarna afzuiging en alle zones op 0. Exacte mislukte RPC nog te bepalen.
+- Independent Home Assistant integration with Bluetooth discovery, explicit
+  pairing, configuration options, status streams and periodic reconciliation.
+- Extraction, zones, settings and diagnostics based on the device descriptor.
+  Controls default to off; cooking requires an additional option.
+- Independent BRPC codecs, checksums, fragmentation, bounded RPCs and recovery
+  without replaying control commands.
+- Zone timer status in seconds, supported by application-code evidence;
+  timer controls and stored-program reuse still require separate validation.
+- Four concrete X PURE Assist programs from the anonymously readable catalogue,
+  with local selection, a separate start button, exact default parameters and
+  a fresh check for an idle, unbridged zone. No physical Assist trial performed.
+- Separate Assist phase, confirmation indication and received target temperature
+  for recognized programs, independent of the local selection.
+- Supported filter replacement indication for known recirculation, without
+  invented hours, percentages or a reset action.
+- Explicit reads of stored Assist favorites, showing slot numbers, recognized
+  titles and read time. The cache is invalidated on failure or disconnection.
+- Bounded developer probe restricted to read methods, with redacted output.
+- Bounded request tracing associates errors with an RPC and zone and records
+  stream shutdown without raw error text.
+- Transport errors retain the original RPC path, request ID and stream marker.
+  Diagnostics redact these fields; a stream error is not misattributed to a
+  status request that it interrupted.
+- Diagnostic reports retain collected favorites after shutdown. Redacting
+  absent numeric identifiers does not erase ordinary zero status values.
+- Explicit connection/disconnection deadlines and checked reauthentication identity.
+- Live cooking observation with confirmed zone/extraction levels and after-run.
+  The resulting offline-tested fix isolates unavailable zones, preserves error/
+  stream arrival order and rejects queued commands for unavailable zones.
+- Central cooking-control checks and comparison of requested settings with
+  readback, without automatic repetition when they differ.
+- Sanitized recording fixtures, offline tests, HA runtime tests and prepared
+  hassfest/HACS workflows.
+- Initial private GitHub version with passing Linux CI: 720 tests, Ruff,
+  dependency consistency and official hassfest. HACS validation remains deferred.
+- Successful physical idle test of the report workflow. A separate fan trial
+  returned code 12 without confirming control; subsequent independent reads
+  confirmed extraction and every zone at 0. The exact failing RPC remains unknown.
+- English project documentation, source code, interface text and GitHub material.
 
-Deze versie wordt voorbereid in een privérepository en is niet openbaar
-uitgebracht of op de Home Assistant van de
-gebruiker geïnstalleerd. Zie docs/VALIDATION.md voor bewijs en open tests.
+Source access is public; version 0.1.0 has no published release and has not
+been submitted to HACS or installed on the user's Home Assistant system.
+See [VALIDATION.md](docs/VALIDATION.md) for evidence and outstanding tests.

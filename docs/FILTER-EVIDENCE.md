@@ -1,58 +1,59 @@
-# Filterwaarschuwing: wat wel en niet vaststaat
+# Filter warning: what is and is not established
 
-Aanvullende statische analyse op 26 september 2026 van BORA One 1.9.1,
-build 130922. De app is hiervoor niet uitgevoerd en er is geen nieuwe
-apparaatverbinding gemaakt.
+Additional static analysis on 26 September 2026 of BORA One 1.9.1,
+build 130922. The app was not run and no new appliance connection was
+made for this analysis.
 
-## De waarschuwing is onderbouwd
+## Evidence for the warning
 
-De Pure-statusmapper leest `remainingFilterLifetime` en zet de boolean
-`shouldChangeFilter` als de waarde kleiner is dan 1. De Swift-weergave
-gebruikt die boolean voor de melding dat het geurfilter vervangen moet
-worden. Dit is een gevolgde gegevensketen van statusveld naar melding,
-geen interpretatie van alleen een RPC-naam.
+The Pure status mapper reads `remainingFilterLifetime` and sets the boolean
+`shouldChangeFilter` when the value is less than 1. The Swift view uses that
+boolean to display the odor filter replacement warning. This follows the
+data from the status field to the warning; it is not an interpretation of
+an RPC name alone.
 
-De beslissende arm64-adressen zijn `0x1010dd85c–0x1010dd864` voor het
-lezen en vergelijken, `0x1010de434–0x1010de438` voor opslag van de boolean
-en `0x10009b0f8–0x10009b108` voor de Swift-waarschuwingsbranch.
+The decisive arm64 addresses are `0x1010dd85c–0x1010dd864` for reading and
+comparing, `0x1010de434–0x1010de438` for storing the boolean, and
+`0x10009b0f8–0x10009b108` for the Swift warning branch.
 
-## Gedrag in Home Assistant
+## Behavior in Home Assistant
 
-De binaire sensor **Filter replacement required** heeft geen bedieningsoptie
-nodig. Hij gebruikt uitsluitend de laatste ontvangen Pure-instellingen:
+The **Filter replacement required** binary sensor does not require controls
+to be enabled. It uses only the latest received Pure settings:
 
-- Bij expliciete recirculatie (`extraction_type=1`) en resterende waarde
-  nul is de melding aan. Positieve waarden tot en met `0x7fffffff` geven uit.
-- Bij afvoer naar buiten, een onbekend type, ontbrekende dealerconfiguratie
-  of een afwijkende waarde blijft de melding onbekend.
-- Zonder Pure-status of beschikbare verbinding is de sensor onbeschikbaar.
+- With explicit recirculation (`extraction_type=1`) and a remaining value
+  of zero, the warning is on. Positive values up to and including
+  `0x7fffffff` produce an off state.
+- With extraction to the outside, an unknown type, missing dealer
+  configuration or an out-of-range value, the warning remains unknown.
+- Without Pure status or an available connection, the sensor is unavailable.
 
-Deze beperking tot bekende recirculatie is een keuze van de integratie.
-De onderzochte appvergelijking en lokale waarschuwingsbranch hebben zelf
-geen extra check op het afzuigtype; een bovenliggende schermvoorwaarde is
-niet uitgesloten. Daarom wordt geen vervangadvies voor afvoer naar buiten
-afgeleid uit alleen een nulwaarde.
+Restricting this to known recirculation is an integration design choice.
+The inspected app comparison and local warning branch do not themselves
+check the extraction type; an enclosing screen condition cannot be ruled
+out. A zero value alone is therefore not used to recommend filter replacement
+for extraction to the outside.
 
-Het protocolveld is uint32, maar de app vergelijkt een signed Int. De
-betekenis van waarden vanaf `0x80000000` is onbekend. Die worden niet
-omgezet in een negatieve levensduur of een vervangmelding. Een ontbrekend
-heel Pure-bericht wordt evenmin nul; een ontbrekende scalar in een wel
-aanwezig protobufbericht heeft volgens dat schema zijn normale nuldefault.
+The protocol field is uint32, but the app compares a signed Int. The meaning
+of values from `0x80000000` onward is unknown. They are not converted to a
+negative lifetime or a replacement warning. An absent entire Pure message
+is not treated as zero either; an absent scalar within a present Protobuf
+message has its normal zero default according to that schema.
 
-## Nog open
+## Remaining questions
 
-Dit bewijs geeft geen eenheid voor `remainingFilterLifetime` of
-`FilterUnit.lifetime`. Er worden geen resterende uren, percentages of
-voorspelde vervangdatums berekend. Een lijst ondersteunde filtertypen
-bewijst niet welk filter gemonteerd is. De betekenis van filterreset blijft
-onbekend en er is geen resetknop toegevoegd.
+This evidence does not establish a unit for `remainingFilterLifetime` or
+`FilterUnit.lifetime`. No remaining hours, percentages or predicted replacement
+dates are calculated. A list of supported filter types does not establish
+which filter is fitted. The meaning of filter reset remains unknown, and
+no reset button has been added.
 
-Ook alle eerdere lokale protocolopnamen zijn hierop gecontroleerd. Er zijn
-slechts twee filterwaarden: 7234 en 7230, ontvangen met 150,002 seconden
-tussenruimte. De exacte actieve bedrijfsduur en interne updatefrequentie
-zijn niet vastgelegd. Deze daling bewijst dus geen minuten, uren of andere
-tijdseenheid en wordt niet tot een resterende gebruiksduur omgerekend.
+All earlier local protocol recordings were also checked for this. They contain
+only two filter values: 7234 and 7230, received 150.002 seconds apart. The exact
+active operating time and internal update frequency were not recorded. This
+decrease therefore does not prove minutes, hours or any other time unit and
+is not converted into remaining operating time.
 
-De drempel, onbekende waarden en HA-beschikbaarheid zijn offline getest.
-De melding moet nog met de echte app en de kookplaat worden vergeleken;
-het apparaatfilter is tijdens deze voorbereiding niet gereset.
+The threshold, unknown values and HA availability have been tested offline.
+The warning still needs comparison with the actual app and cooktop; the
+appliance's filter was not reset during this preparation.

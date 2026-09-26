@@ -1,66 +1,64 @@
-# Dekking van app- en apparaatfuncties
+# Coverage of app and appliance features
 
-Dit overzicht bewaakt het einddoel: een brede lokale integratie voor normaal
-gebruik in Home Assistant. Het vervangt geen hardwaretest. "Voorbereid"
-betekent geïmplementeerd en offline getest; de HA-adapter en bedieningen
-moeten nog op het echte apparaat worden gecontroleerd.
+This overview tracks the end goal: a broad local integration for ordinary use
+in Home Assistant. It does not replace a hardware test. “Prepared” means
+implemented and tested offline; the HA adapter and controls still need checking
+on the real appliance.
 
-## Appfuncties tegenover de integratie
+## App features compared with the integration
 
-BORA beschrijft in de [appinformatie](https://www.bora.com/en-int/products/products/supplies-and-accessories/app/joy)
-een apparaatstatusoverzicht, apparaatmetadata, Assist-programma's en het
-personaliseren van opgeslagen Assists. Receptinspiratie, gebruikersprofielen,
-favoriete recepten en de winkel zijn daarnaast appfuncties. Die laatste
-groep is geen lokale kookplaatbediening en hoort niet bij deze BLE-integratie.
+BORA describes in its [app information](https://www.bora.com/en-int/products/products/supplies-and-accessories/app/joy)
+an appliance-status overview, appliance metadata, Assist programs, and
+personalising saved Assists. Recipe inspiration, user profiles, favourite
+recipes, and the shop are also app features. That latter group is not local
+cooktop control and does not belong in this BLE integration.
 
-| Gebied | Lokale HA-voorbereiding | Werk tot het volledige doel |
+| Area | Local HA preparation | Work required for the full goal |
 | --- | --- | --- |
-| Statusoverzicht | Afzuiging, zones, modi, restwarmte, instellingen en fouten; aparte Assist-fase, bevestigingsmelding en bekende doeltemperatuur | Actieve zones en streams op HA fysiek vergelijken |
-| Afzuiging | Vermogen, automatisch/boost, naloop en stoppen | Code 12 uit de handmatige bedieningsproef aan de exacte RPC koppelen; werkelijke acceptatie van bediening controleren |
-| Kookzones | Vermogen, warmhouden, aankookautomaat, pauze en CSF stoppen | Elke bedieningsroute met aanwezige gebruiker bevestigen |
-| Timers | Codecs plus zonetimerduur, resterende tijd en actief-status | Settereenheden en werkelijke start/stopwerking controleren |
-| Instellingen | Sloten, signaalvolume, aanraking, pandetectie, bedrijfsduur en simple-mode-functies | Betekenis en ondersteuning op dit model bevestigen |
-| BORA Assist starten/wijzigen | Vier concrete X PURE-catalogusstarts, lokale keuze en aparte startknop; exacte parameters en controles voorbereid | Fysieke werking/bevestiging toetsen; overige programma's en actief wijzigen onderbouwen |
-| Opgeslagen Assists | Aparte uitleesknop en sensoren voor slots 3–5; gedeeld met diagnostiek. App-savepad gereconstrueerd | Echte uitlezing bevestigen; firmwaregedrag bij weggelaten slots en behoud van slots 1–2 toetsen vóór opslagbediening |
-| Zones koppelen | Bridge-status en codec; de onderzochte appselectie bewaart twee zones lokaal | Werkelijk BLE-koppel-/ontkoppelpad en firmwaregedrag vaststellen |
-| Filterstatus | Onderbouwde binaire vervangmelding voor bekende recirculatie; ruwe levensduur en typen beschikbaar | Eenheid van de BLE-status, resetbetekenis en fysieke melding vaststellen |
-| Metadata | Model, versies en geredigeerde diagnostiek | Meer modellen en eerste Linux-pairing controleren |
-| Wi-Fi en gebeurtenissen | Optionele status/historie in diagnose-download | Alleen onderbouwde informatie als gewone HA-entiteit toevoegen |
-| Firmware | Versie zichtbaar; geen updater | Updateworkflow niet als generieke schrijfopdracht aanbieden |
+| Status overview | Fan, zones, modes, residual heat, settings, and errors; separate Assist phase, confirmation notice, and known target temperature | Compare active zones and streams physically on HA |
+| Fan | Power, automatic/boost, after-run, and stop | Associate code 12 from the manual control trial with the exact RPC; check actual acceptance of controls |
+| Cooking zones | Power, heat retention, automatic heat-up, pause, and stopping CSF | Confirm every control path with a user present |
+| Timers | Codecs plus zone-timer duration, remaining time, and active status | Check setter units and actual start/stop operation |
+| Settings | Locks, signal volume, touch sensitivity, pan detection, operating duration, and simple-mode features | Confirm meaning and support on this model |
+| Start/change BORA Assist | Four concrete X PURE catalogue starts, local selection, and separate start button; exact parameters and checks prepared | Test physical operation/confirmation; support other programs and active modification |
+| Saved Assists | Separate read button and sensors for slots 3–5; shared with diagnostics. App save path reconstructed | Confirm actual reading; test firmware behaviour for omitted slots and retention of slots 1–2 before offering storage control |
+| Bridge zones | Bridge status and codec; the examined app selection retains two zones locally | Establish the actual BLE bridge/unbridge path and firmware behaviour |
+| Filter status | Supported binary replacement alert for known recirculation; raw lifetime and types available | Establish BLE-status unit, reset meaning, and physical alert |
+| Metadata | Model, versions, and redacted diagnostics | Check more models and first Linux pairing |
+| Wi-Fi and events | Optional status/history in diagnostics download | Add only supported information as a normal HA entity |
+| Firmware | Version visible; no updater | Do not offer an update workflow as a generic write command |
 
-## Aanvullend gedrag uit de handleiding
+## Additional behaviour from the manual
 
-De officiële [X PURE-handleiding, versie 03](https://www.bora.com/product-documentation/operating-and-installation-instructions/umim-xpure-en.pdf)
-beschrijft in §7.4 een Assist-start vanuit de app met bevestiging op de
-kookplaat. Een toekomstige HA-actie moet die bevestiging behouden. §7.6
-beschrijft dat het beëindigen van een programma van het gekozen programma
-afhankelijk is. Een verzonden verzoek bewijst dus geen beëindigde kookcyclus.
+The official [X PURE manual, version 03](https://www.bora.com/product-documentation/operating-and-installation-instructions/umim-xpure-en.pdf)
+describes an Assist start from the app with confirmation on the cooktop in
+§7.4. A future HA action must retain that confirmation. §7.6 describes that
+ending a program depends on the selected program. A sent request therefore
+does not prove a completed cooking cycle.
 
-Deze handleiding beschrijft productgedrag, geen BLE-velden. Het filtermenu
-gebruikt bijvoorbeeld een percentage, terwijl de [officiële filterinformatie](https://www.bora.com/en-int/service/x-pure-v24)
-voor PUAKF een nominale levensduur van ongeveer 150 gebruiksuren noemt.
-Geen van beide bewijst afzonderlijk de eenheid van het BLE-veld
-`remainingFilterLifetime`.
+This manual describes product behaviour, not BLE fields. For example, the
+filter menu uses a percentage, whereas the [official filter information](https://www.bora.com/en-int/service/x-pure-v24)
+states a nominal lifetime of about 150 operating hours for PUAKF. Neither
+proves the unit of BLE field `remainingFilterLifetime` independently.
 
-Een aparte appanalyse onderbouwt inmiddels wel de waarschuwing bij nul.
-De eenheid blijft onbekend; zie [FILTER-EVIDENCE.md](FILTER-EVIDENCE.md).
+A separate app analysis now supports the warning at zero. The unit remains
+unknown; see [FILTER-EVIDENCE.md](FILTER-EVIDENCE.md).
 
-BORA's [Data Act-informatieblad](https://www.bora.com/product-documentation/eu-data-act/bora_pure_range_data_act_information_sheet-en.pdf)
-van 8 oktober 2025 noemt opvraagbare apparaatgegevens, maar geen beschikbaar
-realtime gegevensaanbod. Dat biedt op zichzelf geen vervanging voor de lokale
-BLE-statusroute. Er is geen contactverzoek of aanvraag namens de gebruiker
-verstuurd.
+BORA’s [Data Act information sheet](https://www.bora.com/product-documentation/eu-data-act/bora_pure_range_data_act_information_sheet-en.pdf)
+of 8 October 2025 names retrievable appliance data, but no available real-time
+data offer. That alone is not a replacement for the local BLE status path. No
+contact request or application was sent on the user’s behalf.
 
-## Uitbreidingsgrenzen
+## Expansion limits
 
-Geen willekeurige RPC-service, reset-, dealer-, provisioning- of
-firmwareschrijfknop. Zulke methoden staan in de lokale onderzoeksinventaris,
-maar mogen geen ongedocumenteerde neveneffecten achter een HA-actie verbergen.
-Een ontbrekende of onbegrepen functie blijft herkenbaar open; een geslaagde
-codec-test alleen wordt niet als werkende apparaatfunctie afgevinkt.
+There is no arbitrary RPC service or reset, dealer, provisioning, or firmware
+write button. Such methods are in the local research inventory, but must not
+hide undocumented side effects behind an HA action. A missing or unrecognised
+feature remains visibly open; a successful codec test alone is not marked as a
+working appliance feature.
 
-Publiceren, GitHub Releases en HACS-aanmelding blijven een latere opdracht.
-De nieuwe catalogusroute gebruikt vastgelegde metadata, zonder runtimeaccount
-of cloudaanroep; zie [ASSIST-PRESETS.md](ASSIST-PRESETS.md).
-Zie [FEATURES.md](FEATURES.md), [VALIDATION.md](VALIDATION.md) en
-[PUBLISHING.md](PUBLISHING.md) voor de huidige implementatie en testgrenzen.
+Public release, GitHub Releases, and HACS submission remain later work. The
+new catalogue path uses captured metadata without a runtime account or cloud
+request; see [ASSIST-PRESETS.md](ASSIST-PRESETS.md). See
+[FEATURES.md](FEATURES.md), [VALIDATION.md](VALIDATION.md), and
+[PUBLISHING.md](PUBLISHING.md) for the current implementation and test limits.

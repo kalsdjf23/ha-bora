@@ -1,9 +1,15 @@
 # BORA Local integration
 
-This is a preparation project. The user authorized creating and pushing to
-the private GitHub repository kalsdjf23/ha-bora. Keep it private. Do not create
-releases, make the repository public, submit HACS requests, or deploy to the
-user's Home Assistant without a new instruction.
+Use English for all project documentation, source identifiers, comments,
+docstrings, error messages, user-facing strings, commit messages, and GitHub
+titles/descriptions. Keep protocol identifiers and recorded evidence intact;
+do not translate wire values or change fixtures merely to rename source data.
+
+This is a preparation project. The user authorized uploading to
+kalsdjf23/ha-bora and making the repository public after the English-language
+review and validation. Releases, HACS submission and deployment to the user's
+Home Assistant still require a separate instruction. Public source access
+does not establish release readiness or HACS approval.
 
 Default testing uses recordings and a simulated BLE peer. Real appliance
 tests require an agreed, bounded session with the user present. The user

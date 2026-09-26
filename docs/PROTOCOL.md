@@ -1,112 +1,113 @@
-# Lokaal BORA-protocol
+# Local BORA protocol
 
-Deze eigen implementatie is afgeleid uit de berichtbeschrijvingen van de
-lokaal onderzochte BORA One-app en gecontroleerd met geselecteerde opnames
-van één X PURE (PUXU2R, BLE-revisie 3.0.9). De officiële app, appbinary,
-accountgegevens en ruwe privéopnames maken geen deel uit van dit project.
-De aanwezigheid van een methode in de app bewijst geen ondersteuning door
-elk apparaat. Apparaatdescriptors beperken de aangeboden waarden.
+This independent implementation was derived from the message definitions in
+the locally inspected BORA One app and checked against selected recordings
+from one X PURE (PUXU2R, BLE revision 3.0.9). The official app, its binary,
+account information and raw private recordings are not part of this project.
+A method's presence in the app does not prove that every appliance supports
+it. Device descriptors constrain the values offered by the integration.
 
-## BLE en pairing
+## BLE and pairing
 
-De eigen service is `64cbfe50-126b-17ac-774e-f6fa40487dac`.
-De overige characteristics delen hetzelfde suffix:
+The custom service is `64cbfe50-126b-17ac-774e-f6fa40487dac`.
+The other characteristics share the same suffix:
 
-| Characteristic | Functie |
+| Characteristic | Purpose |
 | --- | --- |
-| FE51 | BRPC-verzoeken, writes met ATT-bevestiging |
-| FE52 | Beveiligd antwoordkanaal, notificaties |
-| FE53 | Bondingstatus: 00 niet gekoppeld, 01 gekoppeld, 02 bezig |
+| FE51 | BRPC requests; writes with ATT acknowledgement |
+| FE52 | Protected response channel; notifications |
+| FE53 | Bonding state: 00 unpaired, 01 paired, 02 in progress |
 
-De transportlaag gebruikt conservatieve chunks van maximaal 20 bytes.
-Home Assistant levert het actuele BLE-device via zijn Bluetoothmanager;
-er wordt geen afzonderlijke scanner gestart. Eerste pairing gebeurt alleen
-na bevestiging in de configuratieflow. Een gewone reconnect controleert
-het bestaande bond en kan een herauthenticatieverzoek opleveren.
+The transport uses conservative chunks of no more than 20 bytes.
+Home Assistant supplies the current BLE device through its Bluetooth manager;
+no separate scanner is started. Initial pairing happens only after confirmation
+in the configuration flow. A normal reconnect checks the existing bond and
+may prompt for reauthentication.
 
-Een gekoppelde Mac heeft succesvol gelezen. Pairing via Linux of een
-Bluetooth-proxy moet nog fysiek worden getest. macOS-peripheral-ID's zijn
-hostspecifiek; ze worden niet als universeel MAC-adres vastgelegd.
+Reads have succeeded from a paired Mac. Pairing through Linux or a Bluetooth
+proxy still requires physical testing. macOS peripheral IDs are specific to
+the host; they are not stored as universal MAC addresses.
 
-## Framing en BRPC
+## Framing and BRPC
 
-Een frame is `7E + escaped(payload + CRC32) + 7C`. CRC32 is big-endian;
-de checksum wordt over de Protobuf-payload berekend. Bytes 7C, 7D en 7E
-worden geescaped als respectievelijk 7D5C, 7D5D en 7D5E. Notificaties kunnen
-fragmenten van frames of meerdere frames bevatten. Foute CRC's, ongeldige
-velden en frames groter dan 1 MiB worden afgewezen.
+A frame is `7E + escaped(payload + CRC32) + 7C`. CRC32 is big-endian;
+the checksum is calculated over the Protobuf payload. Bytes 7C, 7D and 7E
+are escaped as 7D5C, 7D5D and 7D5E, respectively. Notifications may contain
+frame fragments or multiple frames. Invalid CRCs, invalid fields and frames
+larger than 1 MiB are rejected.
 
-| Requestveld | Nummer | Type |
+| Request field | Number | Type |
 | --- | --- | --- |
 | path | 2 | string |
-| id | 3 | uint32, uniek en niet nul |
-| body | 4 | bytes met specifiek Protobuf-verzoek |
-| stream | 6 | NONE=0 of STOP=2 |
+| id | 3 | uint32, unique and nonzero |
+| body | 4 | bytes containing the specific Protobuf request |
+| stream | 6 | NONE=0 or STOP=2 |
 
-| Responseveld | Nummer | Type |
+| Response field | Number | Type |
 | --- | --- | --- |
-| code | 2 | antwoordcode; 0 bij succes |
+| code | 2 | response code; 0 for success |
 | request_id | 3 | uint32 |
-| body | 4 | bytes met specifiek Protobuf-antwoord |
-| error | 5 | foutbericht; niet als succes behandelen |
+| body | 4 | bytes containing the specific Protobuf response |
+| error | 5 | error message; must not be treated as success |
 | stream | 7 | NONE=0, CONTINUE=1, STOP=2, START=3 |
 
-Een stream start met een normaal verzoek aan `Stream…`. START bevestigt
-het abonnement; CONTINUE levert updates. STOP gebruikt hetzelfde pad en
-request-ID als het abonnement. START garandeert geen beginsnapshot: na
-abonneren volgen daarom expliciete statusvragen. Unary-antwoorden en
-streamupdates worden in ontvangstvolgorde verwerkt, zodat een oudere
-snapshot geen nieuwere update overschrijft.
+A stream starts with a normal request to `Stream…`. START acknowledges
+the subscription; CONTINUE delivers updates. STOP uses the subscription's
+original path and request ID. START does not guarantee an initial snapshot,
+so explicit status reads follow subscription. Unary responses and stream
+updates are processed in arrival order so that an older snapshot cannot
+overwrite a newer update.
 
-Request-ID's worden niet hergebruikt zolang er een bijbehorend verzoek of
-abonnement bestaat. Notificaties van een oude verbinding worden genegeerd.
-Een timeout van een bedieningsverzoek kan betekenen dat het apparaat de
-opdracht wel heeft ontvangen. De integratie herhaalt die opdracht nooit.
+Request IDs are not reused while an associated request or subscription
+exists. Notifications from an old connection are ignored. A control request
+that times out may still have reached the appliance. The integration never
+replays that command.
 
-## Diensten en bewijs
+## Services and evidence
 
-De bibliotheek bevat eigen codecs voor de diensten Identify, Extractor,
-Cooktop en Zone en voor optionele diagnostische leesmethoden. Het overzicht
-in [FEATURES.md](FEATURES.md) onderscheidt HA-entiteiten, codec-ondersteuning
-en nog ontbrekende validatie. Er is geen HA-service om willekeurige RPC's
-uit te voeren. Firmware, factory reset, provisioning en dealerinstellingen
-worden niet aangeboden als bediening.
+The library contains independently implemented codecs for the Identify,
+Extractor, Cooktop and Zone services, plus optional diagnostic reads.
+The overview in [FEATURES.md](FEATURES.md) distinguishes HA entities, codec
+support and validation still needed. There is no HA service for arbitrary
+RPCs. Firmware operations, factory resets, provisioning and dealer settings
+are not exposed as controls.
 
-De gesaniteerde fixture `tests/fixtures/x_pure_3_0_9.json` bevat 15 sessies
-met 39 geldige antwoorden. Dit is bewijs voor concrete reads, framing en
-afzuigstreamupdates; het is geen opname van geslaagde bedieningscommando's.
-Encoder- en entiteitentests zijn offline bewijs voor de implementatie.
+The sanitized fixture `tests/fixtures/x_pure_3_0_9.json` contains 15 sessions
+with 39 valid responses. It provides evidence for specific reads, framing
+and extractor stream updates; it does not record successful control commands.
+Encoder and entity tests provide offline evidence for the implementation.
 
-Een geslaagde RPC bevestigt ontvangst, niet dat de gewenste waarde al actief is.
-De client leest status terug en vergelijkt de relevante velden. Ontbreekt die
-waarde of wijkt ze af, dan meldt HA de opdracht als nog onbevestigd en toont
-het de werkelijk ontvangen status. Er volgt geen nieuwe schrijfopdracht.
-Latere streams kunnen de verandering alsnog tonen; hun timing en het gedrag
-van echte bedieningen moeten nog fysiek worden onderzocht.
+A successful RPC acknowledges receipt, not that the requested value is
+already active. The client reads status back and compares the relevant
+fields. If the value is missing or differs, HA reports the command as still
+unconfirmed and displays the status actually received. No further write is
+issued. Later streams may show the change; their timing and the behavior of
+physical controls still require testing on the appliance.
 
-## Semantiek die niet gegokt wordt
+## Semantics that are not inferred
 
-- `remainingAfterRun` is aantoonbaar milliseconden. De gemeten ingestelde
-  naloop is 30 minuten, terwijl de descriptor alleen 10, 15 en 20 minuten
-  als schrijfbare opties adverteert. Uitlezing en keuzelijst blijven gescheiden.
-- Afzuiging gebruikt index 9 voor `P`; kookzones gebruiken index 10 voor `P`.
-  Indexen en labels worden uit de descriptor gelezen.
-- `readyForSleep=false` kwam ook voor bij een fysiek uitgeschakelde kookplaat.
-  Dit veld is geen aan/uit-status. `potDetectionActive` bewijst evenmin dat
-  daadwerkelijk een pan aanwezig is.
-- Zonestatus Timer.duration/remaining zijn via appconversies als milliseconden
-  bewezen en worden als seconden getoond. De aparte timer-settervelden,
-  kookwekker en filterlevensduur houden hun eerdere bewijsgrenzen; zie
-  [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md).
-- Super Simple Mode schrijft de volledige groep van vijf uitgeschakelde
-  functies. De integratie wijzigt deze groep onder een lock, met bevestigde
-  uitlezing tussen wijzigingen. Dit is geen aan/uit-knop voor de modus zelf.
-- Vier CSF-catalogusstarts combineren concrete openbare records met de
-  gereconstrueerde productiecaller. Hun vaste index- en timerwaarde nul zijn
-  expliciete appstartuitzonderingen; ze worden niet uit descriptorgrenzen
-  gegokt. Zie [ASSIST-PRESETS.md](ASSIST-PRESETS.md). Overige CSF-bediening en
-  het ongedaan maken van een zonebrug blijven zonder onderbouwde route.
-- De onderzochte Swift-appactie `bridgeSelectedAction` roept `SelectZones`
-  aan; die tak bewaart een paar zone-identiteiten in het selectiemodel en
-  keert terug. Dit bewijst lokale selectie, geen `SetBridged`-opdracht. De
-  aanwezigheid van gegenereerde service-adapters bewijst evenmin appgebruik.
+- `remainingAfterRun` is proven to use milliseconds. The observed after-run
+  setting is 30 minutes, while the descriptor advertises only 10, 15 and 20
+  minutes as writable options. The reported setting and selectable options
+  remain separate.
+- Extraction uses index 9 for `P`; cooking zones use index 10 for `P`.
+  Indices and labels are read from the descriptor.
+- `readyForSleep=false` was also observed when the cooktop was physically
+  switched off. This field is not a power state. `potDetectionActive` likewise
+  does not prove that a pan is actually present.
+- App conversions establish that zone status Timer.duration/remaining use
+  milliseconds; they are displayed in seconds. The separate timer setter
+  fields, egg timer and filter lifetime retain their earlier evidence limits;
+  see [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md).
+- Super Simple Mode writes the complete group of five disabled functions.
+  The integration changes this group under a lock, with confirmed readback
+  between changes. This is not an on/off switch for the mode itself.
+- Four CSF catalogue starts combine specific public records with the
+  reconstructed production caller. Their fixed zero index and timer values
+  are explicit app-start exceptions, not guesses based on descriptor ranges.
+  See [ASSIST-PRESETS.md](ASSIST-PRESETS.md). No supported workflow has yet
+  been established for other CSF controls or unbridging a zone.
+- The inspected Swift app action `bridgeSelectedAction` calls `SelectZones`;
+  that branch stores a pair of zone identities in the selection model and
+  returns. This proves local selection, not a `SetBridged` command. The
+  presence of generated service adapters does not prove app usage either.

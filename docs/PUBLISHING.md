@@ -1,116 +1,105 @@
-# Publicatievoorbereiding
+# Release and HACS preparation
 
-De gebruiker heeft op 26 september 2026 de privérepository
-[kalsdjf23/ha-bora](https://github.com/kalsdjf23/ha-bora) en het uploaden van de
-eerste versie toegestaan. Deze repository blijft privé. Openbare publicatie,
-releases, HACS-aanmelding en installatie op de echte Home Assistant vereisen
-een afzonderlijke opdracht.
+The source repository is [kalsdjf23/ha-bora](https://github.com/kalsdjf23/ha-bora).
+It was initially created privately on 26 September 2026. The user subsequently
+authorized making it public after the English-language review and validation.
+This permission covers source access only: no release, HACS submission or
+installation on the real Home Assistant instance is authorized by that change.
 
-## Wat klaarstaat
+## What is ready
 
-De map bevat een custom integration met domein `bora`, een configuratieflow,
-vertalingen voor de configuratie, protocolcode, entiteiten, tests, een
-MIT-licentie, `manifest.json`, `hacs.json` en een eigen projecticoon.
-De versie in de metadata is `0.1.0`; dat is nog geen gepubliceerde release.
+The project contains a custom integration with the domain `bora`, a config
+flow, English interface text, protocol code, seven entity platforms, tests,
+an MIT license, `manifest.json`, `hacs.json` and an original project icon.
+The metadata version is `0.1.0`; this is not a published release.
+Documentation, code, comments, interface text and GitHub material use English.
 
-De huidige inhoud heeft lokaal 720 offline tests met 96% coverage van de
-integratiecode en Ruff doorstaan. De officiële hassfest-validatie inclusief
-`--requirements` slaagde eerder; de metadata zijn sindsdien ongewijzigd. Zie
-[VALIDATION.md](VALIDATION.md) voor versies, coverage en bewijsgrenzen.
-De officiële HACS-validatie blijft open zolang de repository privé blijft.
-De [validator-entrypoint](https://github.com/hacs/integration/blob/main/action/action.py)
-vereist een GitHub-token, een repositorynaam (`eigenaar/repository`) en een
-categorie. De [repositorycode](https://github.com/hacs/integration/blob/main/custom_components/hacs/repositories/base.py)
-haalt metadata, bestanden en releases van GitHub; er is geen invoer voor alleen
-een lokale integratiemap. Een lokaal gestarte container verandert
-dat niet: ook HACS' eigen [lokale containercontrole](https://github.com/hacs/integration/blob/main/.github/workflows/validate.yml)
-gebruikt GitHub-repositories en een token. HACS vereist bovendien een
-[publieke GitHub-repository](https://www.hacs.xyz/docs/publish/start/#general-requirements).
-De lokale hassfest- en pakketcontroles vervangen deze validatie dus niet.
+The current contents passed **737 local offline tests with 96% integration-code
+coverage** and Ruff. Official hassfest validation, including `--requirements`,
+passed earlier; the first three GitHub CI runs also passed. See
+[VALIDATION.md](VALIDATION.md) for versions, coverage and evidence limits.
 
-De [CI-workflows](CI.md) voeren tests, Ruff en de officiële hassfest uit bij
-pushes en pull requests. De handmatige HACS-workflow slaat de echte validator
-expliciet over zolang de repository privé is. Geen workflow publiceert een
-release of maakt de repository openbaar.
+The [CI workflows](CI.md) run tests, Ruff and official hassfest on pushes and
+pull requests. The HACS workflow is manual only and has not been dispatched.
+Changing repository visibility does not trigger it. No workflow creates a
+release, changes repository visibility or submits the integration to HACS.
 
-Er is ook een [lokaal handmatig proefpakket](PACKAGING.md), met gecontroleerde
-inventaris, reproduceerbare ZIP en 714 geslaagde offline tests vanuit de
-uitgepakte integratiecode. Dit pakket is geen gepubliceerde release of
-HACS-releaseasset en is niet op de echte Home Assistant geïnstalleerd.
+A [local package for manual testing](PACKAGING.md) is also available: r3 has
+32 files, a reproducible ZIP, and **737 passing offline tests using the extracted
+integration code**. This package is not a published release or a HACS release
+asset and has not been installed on the real Home Assistant instance.
 
-Ook vier concrete X PURE Assist-starts zijn lokaal voorbereid. De vaste
-catalogusmetadata zijn zonder account uitgelezen; de integratie gebruikt
-geen runtimecloudaanroep. Zie [ASSIST-PRESETS.md](ASSIST-PRESETS.md) voor
-de exacte standaardparameters en nog vereiste fysieke controles.
+Four specific X PURE Assist starts have been prepared locally. The fixed
+catalogue metadata was retrieved without an account; the integration makes
+no cloud calls at runtime. See [ASSIST-PRESETS.md](ASSIST-PRESETS.md) for the
+exact defaults and outstanding physical checks. The
+[saved favorites view](SAVED-ASSISTS.md) includes tests through HA services,
+cache invalidation on reconnect and explicit reads only.
 
-Het [opgeslagen-favorietenoverzicht](SAVED-ASSISTS.md) is eveneens voorbereid,
-inclusief tests via HA-services, cacheverlies bij verbindingsherstel en geen
-automatische favorietenvraag. Een lokale distributiecontrole heeft een echte
-sessie-identificator uit testdata vervangen door een synthetische waarde;
-een definitieve controle van alle releasebestanden blijft op de checklist.
+Zone timer status is readable; timer controls and other uncertainties remain
+as described in [FEATURES.md](FEATURES.md) and [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md).
+The broader feature goals are documented in [APP-COVERAGE.md](APP-COVERAGE.md).
+The bounded [read-only probe](READONLY-PROBE.md) has eighteen offline tests.
+Its normal report workflow was [physically checked](HARDWARE-CHECKS.md) on the
+paired Mac, without reproducing zone error code 14. Its read-only connection
+class was also used during the [cooking observation](COOKING-OBSERVATION.md).
+A fan-control trial did not establish successful control; its exact failing
+RPC was not recorded. New error-origin diagnostics have offline coverage and
+do not retroactively identify that RPC.
 
-De zonetimerstatus is leesbaar; timerbediening en overige onzekerheden blijven
-zoals beschreven in [FEATURES.md](FEATURES.md) en
-[TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). De bredere functiedoelen staan in
-[APP-COVERAGE.md](APP-COVERAGE.md). Ook is een begrensd
-[read-only proefscript](READONLY-PROBE.md) voorbereid en met zeventien offline tests
-getest. De gewone rapportworkflow is op de gekoppelde Mac
-[fysiek gecontroleerd](HARDWARE-CHECKS.md), zonder zonecode 14 te reproduceren.
-Dezelfde read-only verbindingsklasse is wel tijdens de
-[kookmeting](COOKING-OBSERVATION.md) gebruikt.
+The GitHub URLs and codeowner in the manifest refer to the actual repository.
+The account and administrator permissions were checked. A public source
+repository, successful custom-repository installation, a published release
+and inclusion in the default HACS catalogue are separate milestones.
 
-De GitHub-URL's en codeowner in het manifest verwijzen naar de aangemaakte
-privérepository. Het ingelogde account en beheerdersrechten zijn gecontroleerd.
-Dit maakt de integratie nog niet openbaar of beschikbaar via HACS.
+## Before the first release
 
-Een publiek GitHub-project dat als aangepaste HACS-repository kan worden
-toegevoegd en opname in de standaard HACS-catalogus zijn afzonderlijke stappen.
-Geen van beide is met deze lokale voorbereiding afgerond.
+- [x] Record owner and repository name: `kalsdjf23/ha-bora`.
+- [x] Obtain permission for public source access after English review and validation.
+- [x] Use English for project documentation, source and interface text.
+- [x] Check the initial upload and Git history for private identifiers, tokens,
+  account data and unsanitized captures; keep only necessary, sanitized fixtures.
+- [x] Build and verify a reproducible runtime package and run the offline suite
+  against its extracted contents. Repeat if runtime contents change.
+- [ ] Finalize the support scope and issue policy for the first release.
+- [ ] Complete the physical checks in [VALIDATION.md](VALIDATION.md), including
+  pairing on the target adapter, status, supported controls and recovery.
+  Current Linux, HA and proxy support claims remain unproven.
+- [ ] Keep the experimental status and remaining limitations visible in the
+  README and release description.
+- [ ] Recheck authorship and licensing of all final release files, dependencies
+  and derived fixtures. Never include the official application binary.
+- [ ] Review all final files and Git history again for private data.
+- [ ] Run offline tests, lint and official Home Assistant validation against the
+  final release commit. Record versions and results; minimum metadata currently
+  uses the offline-tested Home Assistant version 2026.9.3.
+- [ ] Test installation, configuration, options, reauthentication, removal and
+  diagnostics download on a real Home Assistant installation.
+- [ ] Align the version, changelog and installation instructions; check links and
+  package contents. Keep virtual environments and private research out.
+- [ ] Obtain a separate instruction before creating a release or submitting to HACS.
 
-## Open checklist vóór een eerste publicatie
+## Later HACS checks
 
-- [x] Eigenaar en repositorynaam vastgelegd: `kalsdjf23/ha-bora`, privé.
-- [ ] Publieke projectnaam en contact-/issuebeleid bevestigen.
-- [ ] Bepalen welke fysiek gevalideerde functies en platforms de eerste release
-  ondersteunt. De huidige Linux-, HA- en proxyclaims blijven onbewezen totdat
-  de proeven in [VALIDATION.md](VALIDATION.md) zijn uitgevoerd.
-- [ ] Beslissen of de eerste release expliciet experimenteel is en de
-  beperkingen zichtbaar houden in README en releasebeschrijving.
-- [ ] Verklaring van auteurschap en gekozen licentie controleren voor alle
-  bestanden, afhankelijkheden en afgeleide fixtures. Geen officiële appbinary
-  of andere niet voor distributie bedoelde bestanden opnemen.
-- [ ] Bestanden én Git-geschiedenis controleren op adressen, serienummers,
-  accountgegevens, tokens, lokale paden, ongeschoonde scans en privéopnamen.
-  Testfixtures moeten alleen noodzakelijke, geschoonde protocoldata bevatten.
-- [ ] Volledige offline tests en lint op de definitieve release-inhoud uitvoeren;
-  resultaten en gebruikte HA/Python-versies vastleggen.
-- [ ] Bevestigen dat de minimumversie bij de release nog aansluit op de geteste
-  versie. De huidige metadata gebruikt de offline geteste versie 2026.9.3.
-- [ ] Home Assistant-validatie opnieuw uitvoeren op de definitieve
-  release-inhoud en de nog open HACS-validatie uitvoeren. Lokale aanwezigheid
-  van `hacs.json` betekent niet dat HACS-controles al geslaagd zijn.
-- [ ] Installatie, configuratie, opties, herauthenticatie, verwijderen en
-  diagnose-download op een echte HA-installatie controleren.
-- [ ] Publicatieverpakking nalopen: uitsluitend noodzakelijke runtimebestanden,
-  documentatie, tests/fixtures en projectmetadata; geen lokale virtuele omgeving
-  of onderzoeksbinary.
-- [ ] Versienummer, wijzigingslog, release-instructies en documentatietaal voor
-  de beoogde gebruikers afstemmen. Alle links controleren.
-- [ ] Een afzonderlijke opdracht voor publicatie verkrijgen; pas daarna de
-  repository openbaar maken en een release maken.
+Official HACS validation has not run. Its
+[entrypoint](https://github.com/hacs/integration/blob/main/action/action.py)
+requires a GitHub token, repository name and category. The
+[repository code](https://github.com/hacs/integration/blob/main/custom_components/hacs/repositories/base.py)
+reads GitHub metadata, files and releases rather than accepting only a local
+integration directory. The project's earlier source review also covered the
+[local container workflow](https://github.com/hacs/integration/blob/main/.github/workflows/validate.yml).
+HACS requires a [public GitHub repository](https://www.hacs.xyz/docs/publish/start/#general-requirements).
+Local hassfest and package checks do not replace HACS validation or establish approval.
 
-## Daarna: HACS
+When work on HACS publication is explicitly resumed:
 
-- [ ] Controleren of de gepubliceerde repository als aangepaste integration-
-  repository kan worden toegevoegd, geïnstalleerd en bijgewerkt.
-- [ ] De README aanvullen met de echte repository- en installatiegegevens.
-- [ ] Pas na een afzonderlijk besluit standaardcatalogus-opname voorbereiden;
-  de dan geldende voorwaarden en reviewprocedure opnieuw controleren.
+- [ ] Run the official validator and address any findings.
+- [ ] Verify adding, installing and updating the project as a custom integration
+  repository, and document the tested installation method.
+- [ ] Consider default-catalogue inclusion separately and recheck its current
+  requirements before submitting anything.
 
-Bronnen om op dat latere moment te raadplegen:
-[HACS integration-publicatie](https://www.hacs.xyz/docs/publish/integration/),
-[HACS standaardopname](https://www.hacs.xyz/docs/publish/include/) en
-[Home Assistant integration-bestandsstructuur](https://developers.home-assistant.io/docs/creating_integration_file_structure/).
-Deze aanvullende publicatie-eisen moeten bij de latere publicatie opnieuw
-worden gecontroleerd; het brononderzoek naar de validator hierboven is geen
-geslaagde HACS-validatie van dit project.
+References for that later stage:
+[HACS integration publication](https://www.hacs.xyz/docs/publish/integration/),
+[HACS default inclusion](https://www.hacs.xyz/docs/publish/include/) and
+[Home Assistant integration file structure](https://developers.home-assistant.io/docs/creating_integration_file_structure/).

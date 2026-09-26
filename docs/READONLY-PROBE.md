@@ -1,27 +1,27 @@
-# Begrensde uitleesproef voor een later testmoment
+# Bounded read-only probe for an agreed test session
 
-`scripts/readonly_probe.py` is een ontwikkelhulpmiddel voor een aanwezige
-gebruiker. De CLI en rapportworkflow zijn met gesimuleerde peers getest.
-De read-only verbindingsklasse is gebruikt door een afzonderlijke
-[live kookmonitor](COOKING-OBSERVATION.md). Ook de gewone rapportworkflow is
-inmiddels op de eerder gekoppelde Mac [fysiek uitgevoerd](HARDWARE-CHECKS.md).
-Pairing, uitgebreide diagnosevragen en foutpaden zijn in die proef niet getest.
+`scripts/readonly_probe.py` is a development tool to use with the user present.
+The CLI and report workflow have been tested with simulated peers. The
+read-only connection class was used by a separate
+[live cooking monitor](COOKING-OBSERVATION.md). The normal report workflow has
+also been [physically run](HARDWARE-CHECKS.md) on the previously paired Mac.
+That test did not cover pairing, extended diagnostics requests or error paths.
 
-Hij maakt expliciet verbinding met één opgegeven Bluetooth-identiteit, leest
-metadata en status, volgt maximaal vijf minuten de gewone statusstreams en
-schrijft daarna een geredigeerd JSON-verslag. De verbinding wordt ook bij een
-fout of annulering lokaal afgesloten. Als de Bluetoothbackend zelf vastloopt,
-kan een afgebroken disconnect geen bevestigde radiodisconnect garanderen.
+The tool explicitly connects to one specified Bluetooth identity, reads
+metadata and status, follows the normal status streams for up to five minutes,
+then writes a redacted JSON report. It closes the connection locally even on
+error or cancellation. If the Bluetooth backend itself hangs, an interrupted
+disconnect cannot guarantee a confirmed radio disconnection.
 
-De RPC-allowlist bevat alleen bekende status- en diagnosevragen. Bedieningen,
-firmware, resets en de afzonderlijke gebruikersbevestigings-RPC worden
-geweigerd. OS-pairing is apart en standaard uit; `--pair` staat dit expliciet
-toe. Deze tool kan geen afzuiging of verwarming starten.
+The RPC allowlist contains only known status and diagnostics requests.
+Controls, firmware operations, resets and the separate user-confirmation RPC
+are rejected. OS pairing is separate and disabled by default; `--pair`
+explicitly permits it. This tool cannot start extraction or heating.
 
-## Voorbereide opdrachten
+## Prepared commands
 
-Voer deze pas uit tijdens een afgesproken fysieke proef. Gebruik Python 3.14
-en een Bluetoothadapter van de machine waarop het commando draait:
+Run these only during an agreed physical test session. Use Python 3.14 and a
+Bluetooth adapter on the machine running the command:
 
 ```sh
 python3.14 -m venv .venv
@@ -30,52 +30,58 @@ python3.14 -m venv .venv
   --address '<BLUETOOTH-ID>' --seconds 30 --output probe-status.json
 ```
 
-Voor een nieuwe adapter: voeg `--pair` toe en bevestig de gewone pairingvraag
-op de kookplaat/host als deze verschijnt. Voor de zes optionele diagnosevragen:
-voeg `--extended` toe. Dit omvat ook `GetSavedCsf`; een niet ondersteunde
-methode wordt als zodanig in het verslag opgenomen. Gebruik steeds een nieuwe
-bestandsnaam. Bestaande bestanden worden niet overschreven.
+For a new adapter, add `--pair` and confirm the normal pairing prompt on the
+cooktop/host if it appears. Add `--extended` for the six optional diagnostics
+requests. These include `GetSavedCsf`; an unsupported method is recorded as
+such in the report. Always use a new filename. Existing files are not overwritten.
 
-Het verslag bewaart de afgeronde diagnosevragen ook nadat de verbinding is
-afgesloten en de live favorietencache is gewist. Persoonlijke identifiers en
-netwerkadressen worden geredigeerd; een ontbrekend numeriek adres met waarde
-0 laat gewone nulstanden, timers en programmaparameters intact.
+The report retains completed diagnostics requests after the connection has
+closed and the live favorites cache has been cleared. Personal identifiers
+and network addresses are redacted; a missing numeric address with value 0
+leaves ordinary zero-valued settings, timers and program parameters intact.
 
-Onder `diagnostic_snapshot.probe.request_trace` staan de pogingen met hun
-volgnummer, verzoek-ID, RPC-pad en — bij een zonevraag — de zone-UID. De uitkomst
-bevat alleen het antwoordtype/fouttype en de numerieke foutcode; geen ruwe
-antwoordbody of fouttekst. Zo kan bijvoorbeeld code 14 direct aan
-`GetZoneStatus(front_left)` worden gekoppeld, zonder die koppeling uit de
-pollvolgorde af te leiden. Stream-starts en de afsluitende STOP-pogingen staan
-in dezelfde lijst. De eerste en laatste pogingen blijven bewaard tot maximaal
-100 rijen; `total` en `omitted` maken ontbrekende tussenliggende rijen zichtbaar.
+`diagnostic_snapshot.probe.request_trace` records attempts with their sequence
+number, request ID, RPC path and, for zone requests, zone UID. The outcome
+contains only the response/error type and numeric error code, without a raw
+response body or error text. For example, code 14 can be linked directly to
+`GetZoneStatus(front_left)` without inferring that association from the polling
+order. Stream starts and final STOP attempts appear in the same list. The
+first and last attempts are retained, up to 100 rows; `total` and `omitted`
+make missing intermediate rows visible.
 
-Een geregistreerde poging bewijst niet dat alle bytes het apparaat bereikten.
-`response` betekent dat het transport een antwoord ontving; een onjuiste
-streammarker of statusbody kan daarna nog worden afgekeurd. `cancelled` en
-fouten zonder antwoordcode krijgen geen verzonnen apparaatantwoord. Deze
-registratie is offline getest, ook voor zonecode 14 en streamafsluiting.
-De fysieke rustproef bevestigde normale antwoorden en streamafsluiting;
-zonecode 14 trad daarbij niet op.
+A recorded attempt does not prove that all bytes reached the appliance.
+`response` means the transport received a response; an invalid stream marker
+or status body may still be rejected afterwards. `cancelled` and errors without
+a response code are not assigned a fabricated appliance response. This trace
+has been tested offline, including zone error code 14 and stream shutdown.
+The physical idle test confirmed normal responses and stream shutdown;
+zone error code 14 did not occur during that test.
 
-Dit is een zelfstandige BLE-proef, geen HA-installatie en geen
-Bluetooth-proxytest. De uiteindelijke integratie gebruikt afzonderlijk de
-Bluetoothmanager van Home Assistant.
+An RPC error also retains `error_request_id`, `error_path`, `error_code` and
+`error_stream`, which refer to the original error response. A stream error
+can interrupt another pending status request. In that case, the interrupted
+request does not receive a `response_code` as though it had received its own
+error response. The diagnostics report also retains `last_rpc_error`, the
+last known active RPC error with the same source context. This cache is empty
+after reconnecting; downloading diagnostics makes no new appliance requests.
 
-## Gerichte open vragen
+This is a standalone BLE test, not an HA installation or a Bluetooth proxy
+test. The integration separately uses Home Assistant's Bluetooth manager.
 
-- Vergelijk een handmatig ingestelde zonetimer met duur/resterende tijd in de
-  opname. De appcode onderbouwt milliseconden voor deze statusvelden.
-- Vergelijk de kookwekker apart. Het gemeenschappelijke Protobuf-type alleen
-  is nog geen onafhankelijk getoetste uitlezing of setter-eenheid.
-- Lees opgeslagen Assists naast de in de officiële app weergegeven looptijd.
-  De onderzochte save- en startpaden gebruiken verschillende conversies voor
-  hetzelfde parameterveld. Een opname moet vaststellen wat `GetSavedCsf`
-  teruglevert voordat een opgeslagen programma kan worden hergebruikt.
-- Vergelijk filterstatus met het fysieke menu zonder te resetten of waarden
-  te schrijven. Een nominale levensduur van een filter bewijst niet de eenheid
-  van het resterende-levensduurveld.
+## Specific open questions
 
-Een statusopname bewijst geen settergedrag. Deze tool verstuurt daarom geen
-bedieningsexperimenten. Bekijk het verslag voor het later delen; de export
-redigeert bekende identificerende gegevens en neemt geen ruwe foutteksten op.
+- Compare a manually set zone timer with the duration/remaining time in the
+  recording. App code supports milliseconds for these status fields.
+- Compare the egg timer separately. A shared Protobuf type alone does not
+  independently validate the readout or setter unit.
+- Read saved Assists alongside the duration shown in the official app.
+  The investigated save and start paths use different conversions for the
+  same parameter field. A recording must establish what `GetSavedCsf`
+  returns before a saved program can be reused.
+- Compare filter status with the physical menu without resetting or writing
+  values. A filter's nominal lifetime does not establish the unit of the
+  remaining-lifetime field.
+
+A status recording does not establish setter behavior. This tool therefore
+sends no experimental control commands. Review the report before sharing it;
+the export redacts known identifying data and excludes raw error text.

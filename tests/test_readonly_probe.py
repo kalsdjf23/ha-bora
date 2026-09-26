@@ -138,6 +138,9 @@ async def test_trace_correlates_zone_error_and_stream_cleanup_without_raw_errors
     assert failed["path"] == zone.GET_PATH and failed["zone_uid"] == "front_left"
     assert failed["outcome"] == "error" and failed["error_type"] == "RpcError"
     assert failed["response_code"] == 14
+    assert failed["error_request_id"] == request_id
+    assert failed["error_path"] == zone.GET_PATH
+    assert failed["error_stream"] == "NONE"
     assert all(row["started_at"] <= row["finished_at"] for row in trace["requests"])
     assert "private error" not in json.dumps(trace)
     failed["response_code"] = 999
@@ -221,3 +224,29 @@ async def test_report_includes_transport_requests_and_cleanup_after_zone_unavail
                for row in rows[-3:])
     assert "private detail" not in json.dumps(report)
     assert "AA:BB:CC:DD:EE:FF" not in json.dumps(report)
+    assert report["last_rpc_error"]["path"] == zone.GET_PATH
+    assert report["last_rpc_error"]["code"] == 14
+
+
+async def test_probe_trace_preserves_stream_error_origin_when_a_read_is_interrupted():
+    factory = Factory()
+    connection = ReadOnlyConnection(factory)
+    await connection.connect()
+    peer = factory.peers[0]
+    stream_id = await connection.subscribe(zone.STREAM_PATH, lambda _: None)
+    peer.respond = False
+    peer.request_seen.clear()
+    waiting = asyncio.create_task(connection.rpc(*zone.get_status("front_left")))
+    await peer.request_seen.wait()
+    peer.code = 12
+    peer.reply(stream_id, stream=Stream.CONTINUE, error=b"private stream error")
+    with pytest.raises(RpcError):
+        await waiting
+    await connection.disconnect()
+    row = connection.request_trace["requests"][-1]
+    assert row["path"] == zone.GET_PATH
+    assert row["error_path"] == zone.STREAM_PATH
+    assert row["error_request_id"] == stream_id != row["request_id"]
+    assert row["error_stream"] == "CONTINUE" and row["error_code"] == 12
+    assert "response_code" not in row
+    assert "private stream error" not in json.dumps(connection.request_trace)

@@ -1,47 +1,47 @@
-# Opgeslagen Assists bekijken
+# Viewing saved Assists
 
-Deze voorbereiding toont de drie favorietenplaatsen die de X PURE-app
-gebruikt: **Saved Assist 3**, **Saved Assist 4** en **Saved Assist 5**.
-De apparaatmetadata moet X PURE en een passende indexrange melden.
-Dit is uitsluitend uitlezen; de opgeslagen inhoud wordt niet gewijzigd.
+This preparation displays the three favorite slots used by the X PURE app:
+**Saved Assist 3**, **Saved Assist 4** and **Saved Assist 5**.
+The device metadata must identify X PURE and report a suitable index range.
+This feature only reads data; it does not change the saved contents.
 
-Druk op **Refresh saved Assists** om één `GetSavedCsf`-vraag te doen.
-De knop werkt ook met algemene bediening en kookbediening uitgeschakeld.
-Opstarten, gewone statuscontroles en verbindingsherstel lezen deze lijst
-niet automatisch. De bestaande knop **Refresh diagnostics** doet deze
-vraag al en vult hetzelfde overzicht, zonder een tweede favorietenvraag.
+Press **Refresh saved Assists** to issue one `GetSavedCsf` request. The button
+also works when general controls and cooking controls are disabled. Startup,
+ordinary status checks and reconnection do not automatically read this list.
+The existing **Refresh diagnostics** button already makes this request and
+populates the same display without a second favorites request.
 
-## Betekenis van de weergave
+## Meaning of the display
 
-| Weergave | Betekenis |
+| Display | Meaning |
 | --- | --- |
-| Onbeschikbaar | Nog niet uitgelezen, uitlezing mislukt of verbinding ongeldig. Er wordt geen lege plaats aangenomen. |
-| Programmatitel | Het ontvangen programma-ID én type komen overeen met een van de vier bekende FRYING-catalogusprogramma's. |
-| `unknown_<id>` | De plaats is gevuld, maar het ID/type-paar is niet als catalogusprogramma herkend. |
-| `empty` | Een geslaagde uitlezing bevat geen parameter voor deze plaats. |
-| `ambiguous` | De response bevat meerdere parameters voor dezelfde plaats. Geen daarvan wordt stilzwijgend gekozen. |
+| Unavailable | Not yet read, the read failed, or the connection is invalid. An empty slot is not assumed. |
+| Program title | Both the reported program ID and type match one of the four known FRYING catalogue programs. |
+| `unknown_<id>` | The slot is populated, but the ID/type pair was not recognized as a catalogue program. |
+| `empty` | A successful read contains no parameters for this slot. |
+| `ambiguous` | The response contains multiple parameter sets for the same slot. None is silently chosen. |
 
-Het attribuut `last_read` geeft het tijdstip van deze lokale uitlezing in
-UTC, niet een tijdstempel van de kookplaat. De ontvangen parameters blijven
-zichtbaar als attributen, zonder onbewezen timer- of temperatuurconversies.
-De weergave is een momentopname; wijzigingen via de app vragen een nieuwe
-uitlezing. De volgorde van de responselijst bepaalt geen plaatsnummer:
-de code gebruikt het expliciete `csf_index`.
+The `last_read` attribute gives the time of this local read in UTC, not a
+timestamp from the cooktop. The received parameters remain visible as
+attributes, without unproven timer or temperature conversions. The display
+is a snapshot; changes made through the app require another read. The order
+of the response list does not determine slot numbers: the code uses the
+explicit `csf_index`.
 
-Bij een nieuwe uitlezing verdwijnen eerst de oude waarden. Na een fout of
-annulering blijven ze onbekend. Verbindingsverlies, opnieuw initialiseren en
-afsluiten wissen de weergave eveneens. Een laat antwoord uit een oude
-verbinding mag haar niet opnieuw vullen. Een diagnostiekdownload leest
-alleen de al aanwezige gegevens en veroorzaakt geen apparaatverkeer.
+A new read first removes the old values. After an error or cancellation,
+they remain unknown. Disconnection, reinitialization and shutdown also clear
+the display. A late response from an old connection must not repopulate it.
+Downloading diagnostics uses only the data already available and generates
+no appliance traffic.
 
-## Nog geen opgeslagen programma starten of bewaren
+## Starting and saving stored programs remain unavailable
 
-Een herkende titel bewijst geen veilige startparameters. De bekende
-afwijking tussen opslag- en starttimers en het firmwaregedrag bij
-weggelaten opslagplaatsen blijven open. Deze uitleesfunctie vult geen
-lokale startkeuze in en verstuurt geen `SaveCsf`, `StartOrModifyCsf`,
-fasebevestiging of wijziging van een kookzone.
+A recognized title does not prove that its start parameters are safe. The
+known discrepancy between saved and start timers, and the firmware's behavior
+when saved slots are omitted, remain unresolved. This reading feature does
+not fill in a local start selection or send `SaveCsf`, `StartOrModifyCsf`,
+phase confirmation or a cooking zone change.
 
-Het app-savepad en de open bewaarvraag staan in
-[TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). Alle tests van dit overzicht zijn
-offline uitgevoerd; de eerste echte GetSavedCsf-proef moet nog plaatsvinden.
+The app's save path and the unresolved question of preserving slots are
+described in [TIMER-EVIDENCE.md](TIMER-EVIDENCE.md). All tests of this display
+have run offline; the first physical GetSavedCsf test has yet to take place.

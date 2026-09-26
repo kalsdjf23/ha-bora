@@ -1,115 +1,113 @@
-# BORA voor Home Assistant
+# BORA for Home Assistant
 
-Privévoorbereiding van een onofficiële Bluetooth-integratie voor BORA.
-De integratie bevat statusweergave, afzuigbediening en kookinstellingen, met
-bediening standaard uitgeschakeld. De broncode staat in de privérepository
-[kalsdjf23/ha-bora](https://github.com/kalsdjf23/ha-bora). Dit project is nog niet openbaar,
-niet via HACS beschikbaar gemaakt en niet op een echte Home Assistant-installatie
-met de kookplaat gevalideerd.
+An experimental, unofficial Bluetooth integration for BORA.
+The integration includes status monitoring, extraction controls and cooking
+settings, with controls disabled by default. Source code is available at
+[kalsdjf23/ha-bora](https://github.com/kalsdjf23/ha-bora).
+The project has no published release, has not been submitted to HACS, and has not been
+validated with the cooktop on an actual Home Assistant installation.
 
-Het fysieke onderzoeksbewijs betreft één BORA X PURE, model PUXU2R met
-BLE-firmware 3.0.9, uitgelezen vanaf een eerder gekoppelde Mac. De Home
-Assistant-integratie is getest met opgenomen antwoorden en gesimuleerd
-Bluetooth-verkeer. Eerste koppeling op Linux, gebruik via Bluetooth-proxy's,
-andere BORA-modellen en fysieke bediening via deze integratie zijn nog niet
-bewezen. Zie [validatie en beperkingen](docs/VALIDATION.md).
+Physical evidence covers one BORA X PURE, model PUXU2R with BLE firmware 3.0.9,
+accessed from an already paired Mac. The Home Assistant integration has been
+tested against recorded responses and simulated Bluetooth traffic. First-time
+pairing on Linux, Bluetooth proxies, other BORA models and physical controls
+through this integration remain unverified. See [validation and limitations](docs/VALIDATION.md).
 
-Een [live kookmeting](docs/COOKING-OBSERVATION.md) bevestigde zonevermogen,
-afzuigstanden en het begin van de naloop. De gevonden uitval bij een tijdelijk
-onbeschikbare zone is vervolgens offline verholpen; die correctie moet nog
-op het apparaat worden herhaald.
+A [live cooking observation](docs/COOKING-OBSERVATION.md) confirmed zone power,
+extraction levels and the start of automatic after-run. A failure caused by a
+temporarily unavailable zone was then fixed and tested offline; recovery from
+that specific error still needs to be reproduced on the appliance.
 
-Een afzonderlijke [afzuigproef](docs/HARDWARE-CHECKS.md) leverde code 12
-(`UNIMPLEMENTED`) op en bevestigde geen werkende bediening. Het proeflog
-onderscheidt de mislukte schrijfopdracht nog niet van het teruglezen erna.
-Afzuigbediening blijft daarom experimenteel; statusuitlezing werkte wel.
+A separate [fan control trial](docs/HARDWARE-CHECKS.md) returned code 12
+(`UNIMPLEMENTED`) and did not confirm working controls. Its log does not yet
+distinguish a rejected write from a failed subsequent readback. Extraction
+controls therefore remain experimental; status reads did work.
 
-## Wat is voorbereid?
+## Prepared features
 
-- Afzuigstand, automatische stand, expliciete boostpreset, nalooptijd en naloop stoppen.
-- Per kookzone vermogen, modus, restwarmte, bridge-status en kookprogrammastatus;
-  daarnaast leesbare timerduur, resterende tijd en actief-status.
-- Optionele kookbediening: vermogen, warmhouden, aankookautomaat en een actief kookprogramma stoppen.
-- Vier X PURE Assist-programma's: lokale programmakeuze en een afzonderlijke
-  startknop per ondersteunde zone, met behoud van fysieke Assist-bevestiging.
-  Actuele fase, bevestiging nodig en herkenbare doeltemperatuur komen uit de ontvangen status.
-- Filtervervangmelding voor bekende recirculatie, volgens de onderbouwde appdrempel.
-- Opgeslagen appfavorieten bekijken via een expliciete uitleesknop en drie statussensoren.
-- Pauze, kinderslot, reinigingsslot, signaalvolume, aanraakgevoeligheid en andere ondersteunde instellingen.
-- Apparaatgegevens, foutcodes en optionele, expliciet op te vragen diagnostiek.
+- Extraction level, automatic mode, an explicit boost preset, after-run duration and stopping after-run.
+- Power, mode, residual heat, bridge status and cooking-program status for each
+  zone, plus readable timer duration, remaining time and running state.
+- Optional cooking controls: power, heat retention, automatic heat-up and stopping an active cooking program.
+- Four X PURE Assist presets, with a local selection and a separate start button
+  for each supported zone. Physical Assist confirmation is preserved. The current
+  phase, required confirmation and recognized target temperature come from received status.
+- Filter replacement indication for a known recirculation configuration, using the verified app threshold.
+- Stored app favorites through an explicit refresh button and three status sensors.
+- Pause, child lock, cleaning lock, signal volume, touch sensitivity and other supported settings.
+- Device information, error codes and optional diagnostics collected only on request.
 
-Entiteiten en keuzelijsten volgen de apparaatdescriptor en aanwezige
-statusberichten. Niet ieder model krijgt alle functies. De volledige lijst,
-voorwaarden en nog ontbrekende functies staan in [FEATURES.md](docs/FEATURES.md).
-De zonetimerstatus gebruikt onderbouwde millisecondenconversies. Timerbediening,
-kookwekkerconversies en filtereenheden blijven open; zie
-[TIMER-EVIDENCE.md](docs/TIMER-EVIDENCE.md).
-De vier concrete catalogusstarts en hun onderbouwing staan in
-[ASSIST-PRESETS.md](docs/ASSIST-PRESETS.md). Dit zijn voorbereide standaardstarts;
-eigen programmaparameters en opgeslagen-programmahergebruik blijven open.
-Het afzonderlijke [favorietenoverzicht](docs/SAVED-ASSISTS.md) biedt wel
-uitlezing, zonder opgeslagen programma's te starten of te wijzigen.
+Entities and choices follow the device descriptor and available status messages.
+Not every model gets every feature. See [FEATURES.md](docs/FEATURES.md) for the
+complete list, conditions and missing functionality. Zone timer status uses
+verified millisecond conversions. Timer controls, egg-timer conversions and
+filter units remain unresolved; see [TIMER-EVIDENCE.md](docs/TIMER-EVIDENCE.md).
 
-De integratie vraagt geen cloudaccount en communiceert lokaal via Bluetooth.
-Ze gebruikt Home Assistants Bluetooth-infrastructuur. Dat maakt de architectuur geschikt om verschillende
-adapters te gebruiken, maar bewijst nog geen werkende pairing via een proxy.
+The four catalogue starts and their evidence are documented in
+[ASSIST-PRESETS.md](docs/ASSIST-PRESETS.md). These are prepared default starts;
+custom parameters and reusing stored programs remain open work. The separate
+[favorites overview](docs/SAVED-ASSISTS.md) provides read access without
+starting or modifying stored programs.
 
-## Bediening inschakelen
+The integration requires no cloud account and communicates locally over
+Bluetooth. It uses Home Assistant's Bluetooth infrastructure, allowing different
+adapters in the architecture without claiming that proxy pairing already works.
 
-Bij het toevoegen staan beide opties uit:
+## Enabling controls
 
-| Optie | Betekenis |
+Both options are disabled when the integration is added:
+
+| Option | Meaning |
 | --- | --- |
-| Bediening van afzuiging en instellingen inschakelen | Ontgrendelt afzuigbediening en algemene instellingen. |
-| Kookbediening inschakelen | Extra toestemming voor onder meer zonevermogen, warmhouden, aankookautomaat, pauze en vergrendelingen. Vereist ook de eerste optie. |
+| Enable extraction and settings controls | Enables extraction controls and general settings. |
+| Enable cooking controls | Additional permission for zone power, heat retention, automatic heat-up, pause and locks. Requires the first option too. |
 
-Met beide opties uit blijven statusentiteiten en de optionele diagnoseknop
-bruikbaar. Bediening vereist daarnaast een bereikbare kookplaat, een geldige
-status en de betreffende ondersteunde waarden. Een ontbrekende status wordt
-geen nulstand. Verbindingsherstel herstelt uitlezen en abonnementen; opdrachten
-worden niet opnieuw afgespeeld of voor later bewaard.
+Status entities and the optional diagnostics button remain usable with both
+options disabled. Controls also require a reachable cooktop, valid status and
+the relevant supported values. Missing status never becomes a zero level.
+Reconnection restores reads and subscriptions; commands are never replayed
+or queued for later delivery.
 
-Na ontvangstbevestiging van een opdracht leest de integratie de status opnieuw
-en vergelijkt het relevante veld met de gevraagde waarde. Bij een afwijkende
-of ontbrekende waarde wordt de bediening als nog onbevestigd gemeld; de echte
-teruggelezen toestand blijft zichtbaar. Een apparaat kan de verandering pas
-later melden. Ook bij een timeout kan de uitkomst onzeker zijn. De integratie
-herhaalt de opdracht in geen van deze gevallen automatisch.
+After a command is acknowledged, the integration reads status again and
+compares the relevant field with the requested value. A differing or missing
+value leaves the command unconfirmed while preserving the actual observed
+state. The appliance may report a change later. A timeout can also leave the
+outcome uncertain. The integration does not automatically repeat the command.
 
-## Latere handmatige installatie
+## Future manual installation
 
-Onderstaande stappen beschrijven een toekomstige, afzonderlijk uit te voeren
-proef. Tijdens de lokale voorbereiding zijn ze niet op Home Assistant uitgevoerd.
-De projectmetadata vermeldt Home Assistant 2026.9.3 als minimum; de offline
-testomgeving gebruikt 2026.9.3 en Python 3.14. Oudere versies zijn niet gevalideerd.
+These instructions describe a future, separately arranged test. They have not
+been performed on the user's Home Assistant installation. Project metadata
+requires Home Assistant 2026.9.3 or newer; the offline environment uses
+2026.9.3 and Python 3.14. Older versions have not been validated.
 
-1. Kopieer de map `custom_components/bora` naar
-   `/config/custom_components/bora` van de beoogde Home Assistant-installatie.
-2. Herstart Home Assistant en voeg **BORA** toe via **Instellingen → Apparaten & diensten**.
-3. Selecteer het gevonden apparaat of voer de Bluetooth-identiteit handmatig in.
-   De configuratiestap vraagt om de Connect-modus op de kookplaat te activeren,
-   BORA One te sluiten en een eventuele koppelingsvraag te bevestigen.
-4. Begin met beide bedieningsopties uit en controleer de statusweergave.
+1. Copy `custom_components/bora` to `/config/custom_components/bora` on the
+   intended Home Assistant installation.
+2. Restart Home Assistant and add **BORA** through **Settings → Devices & services**.
+3. Select the discovered device or enter its Bluetooth identity manually.
+   Setup asks you to activate Connect mode on the cooktop, close BORA One
+   and confirm a pairing request if one appears.
+4. Leave both control options disabled initially and check the displayed status.
 
-De eerste koppeling met de gekozen HA-adapter moet nog fysiek worden getest.
-Een bestaande Mac-koppeling wordt niet overgedragen aan die adapter. Publicatie,
-HACS-installatie en praktijktests blijven open werk; zie
-[PUBLISHING.md](docs/PUBLISHING.md).
+First-time pairing with the chosen HA adapter still needs a physical test.
+An existing Mac bond does not transfer to that adapter. Public release,
+HACS installation and practical validation remain open;
+see [PUBLISHING.md](docs/PUBLISHING.md).
 
-## Ontwikkeling en tests
+## Development and tests
 
-De protocolcode staat los van Home Assistant onder
+Protocol code is independent of Home Assistant under
 [`custom_components/bora/ble`](custom_components/bora/ble).
-De adapter, coordinator en entiteiten verbinden deze laag met Home Assistant.
-De tests gebruiken fixtures en een gesimuleerde BLE-peer; ze maken geen
-verbinding met de echte kookplaat.
+The adapter, coordinator and entities connect that layer to Home Assistant.
+Tests use fixtures and a simulated BLE peer; they never connect to the cooktop.
 
-De laatste lokale verificatie: **720 tests geslaagd, 96% coverage** van de
-integratiecode, met Python 3.14.7 en de echte Home Assistant 2026.9.3-testruntime. Ruff en de
-officiële [hassfest-validatie](docs/HASSFEST.md), inclusief requirementscontrole, slaagden ook.
-HACS-validatie en de fysieke HA-proef zijn nog niet uitgevoerd.
+The latest local check passed **737 tests with 96% integration-code coverage**,
+using Python 3.14.7 and the actual Home Assistant 2026.9.3 test runtime. Ruff
+passed. Earlier official [hassfest validation](docs/HASSFEST.md), including
+the requirements check, and [GitHub CI](docs/CI.md) also passed.
+HACS validation and the physical HA installation test remain outstanding.
 
-Voor een ontwikkelomgeving met Python 3.14:
+To create a Python 3.14 development environment:
 
 ```sh
 python3.14 -m venv .venv
@@ -118,11 +116,13 @@ python3.14 -m venv .venv
 .venv/bin/ruff check .
 ```
 
-Zie [VALIDATION.md](docs/VALIDATION.md) voor de betekenis en grenzen van die tests
-en [PROTOCOL.md](docs/PROTOCOL.md) voor de protocolbeschrijving.
-[APP-COVERAGE.md](docs/APP-COVERAGE.md) bewaakt de brede functiedekking;
-[READONLY-PROBE.md](docs/READONLY-PROBE.md) beschrijft een voorbereide, begrensde
-uitleesproef. Dat hulpmiddel heeft zeventien offline tests; de gewone
-rapportworkflow is ook op de gekoppelde Mac [fysiek gecontroleerd](docs/HARDWARE-CHECKS.md).
-Het project gebruikt de [MIT-licentie](LICENSE). Het is geen officieel BORA-product
-en bevat geen distributie van de officiële BORA-app.
+See [VALIDATION.md](docs/VALIDATION.md) for the scope and limitations of these
+tests, and [PROTOCOL.md](docs/PROTOCOL.md) for the protocol description.
+[APP-COVERAGE.md](docs/APP-COVERAGE.md) tracks the broader feature goal.
+[READONLY-PROBE.md](docs/READONLY-PROBE.md) describes the bounded developer
+probe. It has eighteen offline tests; its normal report workflow has also
+been [tested physically](docs/HARDWARE-CHECKS.md) on the paired Mac.
+
+The project uses the [MIT license](LICENSE). It is not an official BORA product
+and does not distribute the official BORA application. Project documentation,
+source code, interface text and GitHub material use English.

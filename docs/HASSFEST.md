@@ -55,4 +55,4 @@ Separately, `custom_components/bora/brand/icon.png` passed structural PNG verifi
 
 Hassfest success does not establish hardware compatibility, successful pairing on every adapter, command behavior, Linux/ESPHome proxy support, or correctness of the integration's runtime tests. Those have separate evidence and test coverage.
 
-The GitHub repository is private. Public HACS validation, release download layout, installation from a release, and any HACS inclusion checks remain future checks after public publication is authorized. Local hassfest success is not a claim of HACS approval. The repository contains the official hassfest workflow; its remote checks and scope are documented in [CI.md](CI.md).
+Public source access has been authorized. HACS validation, release download layout, installation from a release, and HACS inclusion remain future checks; releases and HACS submission are still deferred. Local hassfest success is not a claim of HACS approval. The repository contains the official hassfest workflow; its remote checks and scope are documented in [CI.md](CI.md).

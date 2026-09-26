@@ -35,11 +35,22 @@ class RequestTimeout(BoraError):
 class RpcError(BoraError):
     """The appliance rejected an RPC."""
 
-    def __init__(self, code: int, error: bytes | None = None) -> None:
+    def __init__(
+        self,
+        code: int,
+        error: bytes | None = None,
+        *,
+        request_id: int | None = None,
+        path: str | None = None,
+        stream: Stream | None = None,
+    ) -> None:
         # Keep raw appliance details private, out of exception messages/logs.
         super().__init__(f"BORA returned response code {code}")
         self.code = code
         self.error = error
+        self.request_id = request_id
+        self.path = path
+        self.stream = stream
 
 
 class GattClient(Protocol):
@@ -91,6 +102,7 @@ class BrpcConnection:
         self._generation: object | None = None
         self._decoder = FrameDecoder()
         self._pending: dict[int, asyncio.Future[Response]] = {}
+        self._request_paths: dict[int, str | None] = {}
         self._receivers: dict[int, UpdateCallback] = {}
         self._error_receivers: dict[int, ErrorCallback] = {}
         self._subscriptions: dict[int, Subscription] = {}
@@ -101,6 +113,7 @@ class BrpcConnection:
         self._failed = False
         self.bond_state: int | None = None
         self.last_protocol_error: str | None = None
+        self._last_rpc_error: dict | None = None
 
     @property
     def connected(self) -> bool:
@@ -109,6 +122,11 @@ class BrpcConnection:
     @property
     def subscription_count(self) -> int:
         return len(self._subscriptions)
+
+    @property
+    def last_rpc_error(self) -> dict | None:
+        """Source of the latest active response error, without raw error data."""
+        return None if self._last_rpc_error is None else dict(self._last_rpc_error)
 
     async def connect(self, *, pair: bool = False) -> None:
         """Connect, verify bonding and subscribe; pairing is explicit setup only."""
@@ -121,6 +139,7 @@ class BrpcConnection:
             self._failed = False
             self._decoder.reset()
             self.last_protocol_error = None
+            self._last_rpc_error = None
             generation = self._generation = object()
 
             def on_disconnect(client: GattClient) -> None:
@@ -173,6 +192,7 @@ class BrpcConnection:
             if not future.done():
                 future.set_exception(error)
         self._pending.clear()
+        self._request_paths.clear()
         self._receivers.clear()
         self._error_receivers.clear()
         self._subscriptions.clear()
@@ -186,8 +206,21 @@ class BrpcConnection:
                 future = self._pending.get(reply.request_id)
                 subscription = self._subscriptions.get(reply.request_id)
                 if reply.code or reply.error is not None:
-                    error = RpcError(reply.code, reply.error)
-                    if future and not future.done():
+                    active_request = future is not None and not future.done()
+                    if not active_request and subscription is None:
+                        continue
+                    path = self._request_paths.get(reply.request_id) if active_request else None
+                    if path is None and subscription is not None:
+                        path = subscription.path
+                    error = RpcError(
+                        reply.code, reply.error, request_id=reply.request_id,
+                        path=path, stream=reply.stream,
+                    )
+                    self._last_rpc_error = {
+                        "request_id": reply.request_id, "path": path,
+                        "code": reply.code, "stream": reply.stream.name,
+                    }
+                    if active_request:
                         if reply.stream == Stream.NONE and (
                             failed := self._error_receivers.get(reply.request_id)
                         ):
@@ -251,9 +284,11 @@ class BrpcConnection:
         wait_seconds: float | None = None,
         received: UpdateCallback | None = None,
         failed: ErrorCallback | None = None,
+        path: str | None = None,
     ) -> Response:
         future = asyncio.get_running_loop().create_future()
         self._pending[request_id] = future
+        self._request_paths[request_id] = path
         if received is not None:
             self._receivers[request_id] = received
         if failed is not None:
@@ -267,8 +302,9 @@ class BrpcConnection:
         finally:
             if self._pending.get(request_id) is future:
                 self._pending.pop(request_id)
-            self._receivers.pop(request_id, None)
-            self._error_receivers.pop(request_id, None)
+                self._request_paths.pop(request_id, None)
+                self._receivers.pop(request_id, None)
+                self._error_receivers.pop(request_id, None)
             if not future.done():
                 future.cancel()
             elif not future.cancelled():
@@ -285,7 +321,7 @@ class BrpcConnection:
     ) -> bytes:
         request_id = self._next_id()
         reply = await self._exchange(
-            request_id, request(path, request_id, body), received=received, failed=failed
+            request_id, request(path, request_id, body), received=received, failed=failed, path=path
         )
         if reply.stream != Stream.NONE:
             raise ProtocolError("Unexpected streaming reply to a unary request")
@@ -295,7 +331,7 @@ class BrpcConnection:
         request_id = self._next_id()
         self._subscriptions[request_id] = Subscription(path, callback)
         try:
-            reply = await self._exchange(request_id, request(path, request_id))
+            reply = await self._exchange(request_id, request(path, request_id), path=path)
             if reply.stream != Stream.START:
                 raise ProtocolError("Missing stream START")
         except BaseException:
@@ -315,6 +351,7 @@ class BrpcConnection:
                 request_id,
                 request(subscription.path, request_id, stop=True),
                 wait_seconds=min(self.timeout, 3),
+                path=subscription.path,
             )
             if reply.stream != Stream.STOP:
                 raise ProtocolError("Missing stream STOP")

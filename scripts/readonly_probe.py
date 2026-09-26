@@ -60,32 +60,33 @@ class ReadOnlyConnection(BrpcConnection):
         }
 
     async def _exchange(
-        self, request_id, packet, *, wait_seconds=None, received=None, failed=None
+        self, request_id, packet, *, wait_seconds=None, received=None, failed=None, path=None
     ):
         # Inspect our own framed request: never retain raw payloads, appliance
         # error text or backend exception messages in the export.
         message = Message(FrameDecoder().feed(packet)[0])
-        path = message.text(2)
+        request_path = message.text(2)
         self._trace_count += 1
         row = {
             "sequence": self._trace_count,
             "request_id": request_id,
-            "path": path,
+            "path": request_path,
             "operation": (
                 "stream_stop" if message.uint(6) == Stream.STOP
-                else "stream_start" if path in STREAM_PATHS else "read"
+                else "stream_start" if request_path in STREAM_PATHS else "read"
             ),
             "started_at": datetime.now(UTC).isoformat(),
             "outcome": "pending",
         }
-        if path == zone.GET_PATH:
+        if request_path == zone.GET_PATH:
             row["zone_uid"] = message.message(4).text(1)
         if len(self._trace) >= TRACE_LIMIT:
             self._trace.pop(1)  # Preserve the first exchange and the latest history.
         self._trace.append(row)
         try:
             reply = await super()._exchange(
-                request_id, packet, wait_seconds=wait_seconds, received=received, failed=failed
+                request_id, packet, wait_seconds=wait_seconds, received=received, failed=failed,
+                path=path,
             )
         except asyncio.CancelledError:
             row["outcome"] = "cancelled"
@@ -93,7 +94,14 @@ class ReadOnlyConnection(BrpcConnection):
         except Exception as err:
             row.update(outcome="error", error_type=type(err).__name__)
             if isinstance(err, RpcError):
-                row["response_code"] = err.code
+                row.update(
+                    error_code=err.code, error_request_id=err.request_id, error_path=err.path,
+                    error_stream=err.stream.name if err.stream is not None else None,
+                )
+                # A stream failure can abort an unrelated waiting read. Keep
+                # its true origin instead of inventing a response to that read.
+                if err.request_id == request_id:
+                    row["response_code"] = err.code
             raise
         else:
             # A reply can still fail the caller's stream/body validation.
@@ -171,6 +179,7 @@ async def observe(connection, *, address: str, seconds: int, pair=False, extende
     finally:
         await device.shutdown()
     export_device = SimpleNamespace(
+        connection=connection,
         information=device.information,
         descriptor=device.descriptor,
         snapshot=device.snapshot,
