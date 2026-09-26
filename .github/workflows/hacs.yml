@@ -1,0 +1,42 @@
+name: HACS validation (public repositories only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deferred:
+    name: HACS validation deferred - private repository
+    if: ${{ github.event.repository.private == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Explain why the validator did not run
+        run: |
+          echo "::notice::HACS validation was NOT performed: this repository is private."
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## HACS validation not performed
+
+          This repository is private. Official HACS validation remains deferred
+          until public publication is separately authorized.
+
+          The successful completion of this notice is not a HACS validation result.
+          Tests, Ruff and hassfest run independently in the Tests workflow.
+          EOF
+
+  validate:
+    name: Official HACS validation
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: hacs/action@main
+        with:
+          category: integration
+          repository: ${{ github.repository }}
+          comment: "false"

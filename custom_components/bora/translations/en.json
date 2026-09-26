@@ -1,0 +1,43 @@
+{
+  "title": "BORA",
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Connect a BORA cooktop",
+        "description": "Choose a discovered cooktop, or enter its Bluetooth address if no devices are listed. Keep BORA One disconnected during setup.",
+        "data": {
+          "address": "Bluetooth address"
+        }
+      },
+      "pair": {
+        "title": "Pair with {name}",
+        "description": "Activate Connect on the cooktop, close BORA One, then continue. Confirm the pairing request if one appears. This checks the connection and reads status; it does not start extraction or heating. A local adapter that supports pairing is needed for the first connection.",
+        "data": {}
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not read BORA status. Check range, Connect mode and other app connections, then try again.",
+      "pairing_failed": "Pairing did not complete. Activate Connect and confirm pairing on the cooktop and adapter.",
+      "invalid_address": "Enter a Bluetooth address."
+    },
+    "abort": {
+      "already_configured": "This cooktop is already configured.",
+      "unsupported_device": "This device does not advertise the supported BORA service.",
+      "reauth_successful": "Pairing has been restored.",
+      "unique_id_mismatch": "This Bluetooth device does not match the configured cooktop."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "BORA controls",
+        "description": "Status monitoring works with controls disabled. Enable extraction and settings controls only when you want to operate them from Home Assistant. Cooking controls are separate and include zone power, warming and pause/resume. Controls are experimental until verified on your model.",
+        "data": {
+          "enable_controls": "Enable extraction and settings controls",
+          "enable_cooking_controls": "Enable cooking controls"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "source_url": "https://boraone-backend.k8s-prd.cloud.bora.com/v1/automatic-programs?pimProductId=61596&page=1&pageSize=20",
+  "observed_date": "2026-09-25",
+  "http_status": 200,
+  "authentication": "Anonymous GET; no credentials, cookies or account headers",
+  "scope": "Factual preset metadata only. Recipe instructions, images and other prose omitted. No appliance test.",
+  "pagination": {
+    "lastPage": 1,
+    "totalCount": 4,
+    "pageSize": 20,
+    "page": 1
+  },
+  "programs": [
+    {
+      "id": 62176,
+      "title": "Cook egg dishes",
+      "deviceType": 61596,
+      "appIsBridged": true,
+      "programSteps": [
+        {
+          "controlStepSize": 15,
+          "cookingMethod": "Frying",
+          "cookingMethodKey": "FRYING",
+          "cooktopTimer": true,
+          "coreTemperature": "0 °C",
+          "humidityInPercentage": 0,
+          "maxControlSize": 220,
+          "minControlSize": 120,
+          "sliderConfiguration": [],
+          "sliderName": "",
+          "stepType": "time",
+          "temperatureCvValue": "135 °C",
+          "tick": true,
+          "type": "autoProgStepCooking",
+          "userTimerstart": true
+        }
+      ],
+      "source_step_types": [
+        "autoProgStepInfo",
+        "autoProgStepInfo",
+        "autoProgStepCooking"
+      ]
+    },
+    {
+      "id": 62954,
+      "title": "Fry potato dishes",
+      "deviceType": 61596,
+      "appIsBridged": true,
+      "programSteps": [
+        {
+          "controlStepSize": 15,
+          "cookingMethod": "Frying",
+          "cookingMethodKey": "FRYING",
+          "cooktopTimer": true,
+          "coreTemperature": "0 °C",
+          "humidityInPercentage": 0,
+          "maxControlSize": 220,
+          "minControlSize": 120,
+          "sliderConfiguration": [],
+          "sliderName": "",
+          "stepType": "time",
+          "temperatureCvValue": "205 °C",
+          "tick": true,
+          "type": "autoProgStepCooking",
+          "userTimerstart": true
+        }
+      ],
+      "source_step_types": [
+        "autoProgStepInfo",
+        "autoProgStepInfo",
+        "autoProgStepCooking"
+      ]
+    },
+    {
+      "id": 63120,
+      "title": "Fry pancakes",
+      "deviceType": 61596,
+      "appIsBridged": true,
+      "programSteps": [
+        {
+          "controlStepSize": 10,
+          "cookingMethod": "Frying",
+          "cookingMethodKey": "FRYING",
+          "cooktopTimer": true,
+          "coreTemperature": "0 °C",
+          "humidityInPercentage": 0,
+          "maxControlSize": 220,
+          "minControlSize": 120,
+          "sliderConfiguration": [],
+          "sliderName": "",
+          "stepType": "time",
+          "temperatureCvValue": "180 °C",
+          "tick": true,
+          "type": "autoProgStepCooking",
+          "userTimerstart": true
+        }
+      ],
+      "source_step_types": [
+        "autoProgStepInfo",
+        "autoProgStepInfo",
+        "autoProgStepCooking"
+      ]
+    },
+    {
+      "id": 63121,
+      "title": "Fry breaded foods",
+      "deviceType": 61596,
+      "appIsBridged": true,
+      "programSteps": [
+        {
+          "controlStepSize": 10,
+          "cookingMethod": "Frying",
+          "cookingMethodKey": "FRYING",
+          "cooktopTimer": true,
+          "coreTemperature": "0 °C",
+          "humidityInPercentage": 0,
+          "maxControlSize": 220,
+          "minControlSize": 120,
+          "sliderConfiguration": [],
+          "sliderName": "",
+          "stepType": "time",
+          "temperatureCvValue": "170 °C",
+          "tick": true,
+          "type": "autoProgStepCooking",
+          "userTimerstart": true
+        }
+      ],
+      "source_step_types": [
+        "autoProgStepInfo",
+        "autoProgStepInfo",
+        "autoProgStepCooking"
+      ]
+    }
+  ]
+}
